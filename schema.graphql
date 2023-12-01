@@ -471,11 +471,11 @@ type AppVersion @entity {
   major: Int!
   minor: Int!
   patch: Int!
-  impl: Bytes!
+  impl: String!
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 

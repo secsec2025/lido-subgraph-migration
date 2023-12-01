@@ -16,6 +16,13 @@ export const processor = new EvmBatchProcessor()
         address: [LIDO_DAO_ADDRESS],
         topic0: [lidoDAOEvents.SetApp.topic],
         range: {from: 11473216 }
+    }).setFields({
+        log: {
+            address: true,
+            topics: true,
+            data: true,
+            transactionHash: true
+        }
     });
 
 

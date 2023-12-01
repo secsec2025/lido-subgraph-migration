@@ -22,8 +22,8 @@ export class AppVersion {
     @Column_("int4", {nullable: false})
     patch!: number
 
-    @Column_("bytea", {nullable: false})
-    impl!: Uint8Array
+    @Column_("text", {nullable: false})
+    impl!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     block!: bigint
@@ -31,8 +31,8 @@ export class AppVersion {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     logIndex!: bigint
