@@ -73,9 +73,9 @@ type LidoApproval @entity {
 type LidoSubmission @entity {
   id: ID!
 
-  sender: Bytes!
+  sender: String!
   amount: BigInt!
-  referral: Bytes!
+  referral: String!
 
   shares: BigInt!
   sharesBefore: BigInt!
@@ -90,7 +90,7 @@ type LidoSubmission @entity {
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   transactionIndex: BigInt!
   logIndex: BigInt!
 }

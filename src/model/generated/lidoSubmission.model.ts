@@ -10,14 +10,14 @@ export class LidoSubmission {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    sender!: Uint8Array
+    @Column_("text", {nullable: false})
+    sender!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     amount!: bigint
 
-    @Column_("bytea", {nullable: false})
-    referral!: Uint8Array
+    @Column_("text", {nullable: false})
+    referral!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     shares!: bigint
@@ -49,8 +49,8 @@ export class LidoSubmission {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     transactionIndex!: bigint

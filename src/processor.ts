@@ -2,9 +2,10 @@ import {lookupArchive} from '@subsquid/archive-registry';
 import {
     EvmBatchProcessor
 } from '@subsquid/evm-processor';
-import {LIDO_DAO_ADDRESS} from "./constants";
+import {LIDO_ADDRESS, LIDO_DAO_ADDRESS} from "./constants";
 
 import {events as lidoDAOEvents} from './abi/LidoDAO';
+import {events as lidoEvents} from './abi/Lido';
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
@@ -16,6 +17,11 @@ export const processor = new EvmBatchProcessor()
         address: [LIDO_DAO_ADDRESS],
         topic0: [lidoDAOEvents.SetApp.topic],
         range: {from: 11473216 }
+    }).addLog({
+        address: [LIDO_ADDRESS],
+        topic0: [lidoEvents.Submitted.topic, lidoEvents.Transfer.topic],
+        range: {from: 11473216},
+        transaction: true
     }).setFields({
         log: {
             address: true,

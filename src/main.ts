@@ -1,10 +1,14 @@
 import {TypeormDatabase} from '@subsquid/typeorm-store'
 import {processor} from './processor'
-import {LIDO_DAO_ADDRESS} from "./constants";
+import {LIDO_ADDRESS, LIDO_DAO_ADDRESS} from "./constants";
 
 import {events as lidoDAOEvents} from './abi/LidoDAO';
-import {handleSetApp} from "./handlers/LidoDAO";
-import {EntityCache} from "./entity-cache";
+import {events as lidoEvents} from './abi/Lido';
+
+import {handleSetApp} from './handlers/LidoDAO';
+
+import {EntityCache} from './entity-cache';
+import {handleSubmitted} from "./handlers/Lido";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -13,10 +17,16 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
     for (const c of ctx.blocks) {
         for (const e of c.logs) {
-            // handleSetApp
+            // LidoDAO.handleSetApp
             if (e.address.toLowerCase() === LIDO_DAO_ADDRESS && e.topics[0] === lidoDAOEvents.SetApp.topic) {
                 const {namespace, appId, app} = lidoDAOEvents.SetApp.decode(e);
                 await handleSetApp(namespace, appId, app.toLowerCase(), ctx, e, entityCache);
+            }
+
+            // Lido.handleSubmitted
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.Submitted.topic) {
+                const {sender, amount, referral} = lidoEvents.Submitted.decode(e);
+                await handleSubmitted(sender.toLowerCase(), amount, referral.toLowerCase(), ctx, e, entityCache);
             }
         }
     }
