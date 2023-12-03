@@ -89,3 +89,17 @@ export function getRightPairedEventByLeftLogIndex(events: ParsedEvent[][], logIn
     return null;
 }
 
+
+export function getParsedEventByName(events: ParsedEvent[], name: string, logIndexFrom: bigint = 0n, logIndexTo: bigint = 0n): ParsedEvent | undefined {
+    for (let i = 0; i < events.length; i++) {
+        if (
+            (logIndexFrom === 0n || events[i].event.logIndex >= logIndexFrom) &&
+            (logIndexTo === 0n || events[i].event.logIndex <= logIndexTo) &&
+            events[i].name === name
+        ) {
+            return events[i];
+        }
+    }
+    return undefined;
+}
+

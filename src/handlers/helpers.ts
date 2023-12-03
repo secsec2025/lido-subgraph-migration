@@ -1,14 +1,18 @@
-import {Holder, LidoTransfer, Shares, Stats, Totals} from "../model";
+import {Holder, LidoTransfer, Shares, Stats, TotalReward, Totals} from "../model";
 import {
+    CALCULATION_UNIT, E27_PRECISION_BASE,
+    getAddress,
     LIDO_APP_ID,
-    NETWORK,
+    NETWORK, ONE_HUNDRED_PERCENT,
     PROTOCOL_UPG_APP_VERS,
     PROTOCOL_UPG_BLOCKS,
     PROTOCOL_UPG_IDX_V1_SHARES,
-    PROTOCOL_UPG_IDX_V2, ZERO_ADDRESS
+    PROTOCOL_UPG_IDX_V2, SECONDS_PER_YEAR, ZERO_ADDRESS
 } from "../constants";
 import {EntityCache} from "../entity-cache";
 import assert from "assert";
+import {BigDecimal} from "@subsquid/big-decimal";
+import {extractPairedEvent, getParsedEvent, ParsedEvent} from "./parser";
 
 export async function _loadTotalsEntity(create: boolean = false, entityCache: EntityCache): Promise<Totals | undefined> {
     let totals = await entityCache.getTotals('');
@@ -71,6 +75,26 @@ export async function _loadStatsEntity(entityCache: EntityCache): Promise<Stats>
         entityCache.saveStats(stats);
     }
     return stats;
+}
+
+
+export function _calcAPR_v2(entity: TotalReward, preTotalEther: bigint, postTotalEther: bigint, preTotalShares: bigint, postTotalShares: bigint, timeElapsed: bigint): void {
+    // Lido v2 new approach
+    // https://docs.lido.fi/integrations/api/#last-lido-apr-for-steth
+
+    const preShareRate = BigDecimal(preTotalEther).times(E27_PRECISION_BASE).div(BigDecimal(preTotalShares));
+
+    const postShareRate = BigDecimal(postTotalEther).times(E27_PRECISION_BASE).div(BigDecimal(postTotalShares));
+    const secondsInYear = BigDecimal(SECONDS_PER_YEAR);
+
+    entity.apr = secondsInYear
+        .times(postShareRate.minus(preShareRate))
+        .times(ONE_HUNDRED_PERCENT)
+        .div(preShareRate)
+        .div(timeElapsed);
+
+    entity.aprRaw = entity.apr;
+    entity.aprBeforeFees = entity.apr;
 }
 
 
@@ -200,4 +224,152 @@ export async function _updateHolders(entity: LidoTransfer, entityCache: EntityCa
     }
     entityCache.saveStats(stats);
 }
+
+
+
+export async function _loadTotalRewardEntity(logEvent: any, create: boolean = false, entityCache: EntityCache): Promise<TotalReward | undefined> {
+    let entity = await entityCache.getTotalReward(logEvent.transactionHash);
+    if (!entity && create) {
+        entity = new TotalReward({
+            id: logEvent.transactionHash,
+            block: BigInt(logEvent.block.height),
+            blockTime: BigInt(logEvent.block.timestamp),
+            transactionHash: logEvent.transactionHash,
+            transactionIndex: BigInt(logEvent.transactionIndex),
+            logIndex: BigInt(logEvent.logIndex),
+            feeBasis: 0n,
+            treasuryFeeBasisPoints: 0n,
+            insuranceFeeBasisPoints: 0n,
+            operatorsFeeBasisPoints: 0n,
+            totalRewardsWithFees: 0n,
+            totalRewards: 0n,
+            totalFee: 0n,
+            treasuryFee: 0n,
+            insuranceFee: 0n,
+            operatorsFee: 0n,
+            dust: 0n,
+            mevFee: 0n,
+            apr: BigDecimal(0),
+            aprRaw: BigDecimal(0),
+            aprBeforeFees: BigDecimal(0),
+            timeElapsed: 0n,
+            totalPooledEtherAfter: 0n,
+            totalSharesAfter: 0n,
+            shares2mint: 0n,
+            sharesToOperators: 0n,
+            sharesToTreasury: 0n,
+            sharesToInsuranceFund: 0n,
+            dustSharesToTreasury: 0n
+        });
+    }
+
+    return entity;
+}
+
+
+
+export async function _processTokenRebase(entity: TotalReward, ethDistributedEvent: any, tokenRebasedEvent: ParsedEvent, parsedEvents: ParsedEvent[], entityCache: EntityCache): Promise<void> {
+    entity.totalPooledEtherBefore = tokenRebasedEvent.params['preTotalEther'];
+    entity.totalSharesBefore = tokenRebasedEvent.params['preTotalShares'];
+    entity.totalPooledEtherAfter = tokenRebasedEvent.params['postTotalEther'];
+    entity.totalSharesAfter = tokenRebasedEvent.params['postTotalShares'];
+    entity.shares2mint = tokenRebasedEvent.params['sharesMintedAsFees'];
+    entity.timeElapsed = tokenRebasedEvent.params['timeElapsed'];
+
+    // extracting only 'Transfer' and 'TransferShares' pairs between ETHDistributed to TokenRebased
+    // assuming the ETHDistributed and TokenRebased events are presents in tx only once
+    const transferEventPairs = extractPairedEvent(
+        parsedEvents,
+        'Transfer',
+        'TransferShares',
+        BigInt(ethDistributedEvent.logIndex), // start from ETHDistributed event
+        BigInt(tokenRebasedEvent.event.logIndex) // and to the TokenRebased event
+    );
+
+    let sharesToTreasury = 0n;
+    let sharesToOperators = 0n;
+    let treasuryFee = 0n;
+    let operatorsFee = 0n;
+
+    // NB: there is no insurance fund anymore since v2
+    for (let i = 0; i < transferEventPairs.length; i++) {
+        const eventTransfer = getParsedEvent(
+            transferEventPairs[i],
+            0
+        );
+        const eventTransferShares = getParsedEvent(
+            transferEventPairs[i],
+            1
+        );
+
+        const treasuryAddress = await getAddress('TREASURY', entityCache);
+        // log.warning('treasuryAddress {}', [treasuryAddress.toHexString()])
+        // process only mint events
+        if (eventTransfer.params.from === ZERO_ADDRESS) {
+            // log.warning('eventTransfer.params.to {}', [eventTransfer.params.to.toHexString()])
+
+            if (eventTransfer.params.to === treasuryAddress) {
+                // mint to treasury
+                sharesToTreasury = sharesToTreasury + eventTransferShares.params['sharesValue'];
+                treasuryFee = treasuryFee + eventTransfer.params['value'];
+
+                // log.warning('sharesToTreasury": transfer  {} total {} totalFee {}', [
+                //   eventTransferShares.params.sharesValue.toString(),
+                //   sharesToTreasury.toString(),
+                //   treasuryFee.toString()
+                // ])
+            } else {
+                // mint to SR module
+                sharesToOperators = sharesToOperators + eventTransferShares.params['sharesValue'];
+                operatorsFee = operatorsFee + eventTransfer.params['value'];
+
+                // log.warning('operatorsFee: transfer {} total {} totalFee {}', [
+                //   eventTransferShares.params.sharesValue.toString(),
+                //   sharesToOperators.toString(),
+                //   operatorsFee.toString()
+                // ])
+            }
+        }
+    }
+
+    entity.sharesToTreasury = sharesToTreasury;
+    entity.treasuryFee = treasuryFee;
+    entity.sharesToOperators = sharesToOperators;
+    entity.operatorsFee = operatorsFee;
+    entity.totalFee = treasuryFee + operatorsFee;
+    entity.totalRewards = entity.totalRewardsWithFees - entity.totalFee;
+
+    if (entity.shares2mint !== sharesToTreasury + sharesToOperators) {
+        console.warn(
+            'totalRewardsEntity.shares2mint != sharesToTreasury + sharesToOperators: shares2mint {} sharesToTreasury {} sharesToOperators {}',
+            [
+                entity.shares2mint.toString(),
+                sharesToTreasury.toString(),
+                sharesToOperators.toString(),
+            ]
+        );
+    }
+    // @todo calc for compatibility
+    // Total fee of the protocol eg 1000 / 100 = 10% fee
+    // feeBasisPoints = 1000
+    // const sharesToInsuranceFund = shares2mint.times(totalRewardsEntity.insuranceFeeBasisPoints).div(CALCULATION_UNIT)
+    // const sharesToOperators = shares2mint.times(totalRewardsEntity.operatorsFeeBasisPoints).div(CALCULATION_UNIT)
+
+    entity.treasuryFeeBasisPoints = (treasuryFee * CALCULATION_UNIT) / entity.totalFee;
+    entity.operatorsFeeBasisPoints = (operatorsFee * CALCULATION_UNIT) / entity.totalFee;
+    entity.feeBasis = (entity.totalFee * CALCULATION_UNIT) / entity.totalRewardsWithFees;
+
+    // APR
+    _calcAPR_v2(
+        entity,
+        tokenRebasedEvent.params['preTotalEther'],
+        tokenRebasedEvent.params['postTotalEther'],
+        tokenRebasedEvent.params['preTotalShares'],
+        tokenRebasedEvent.params['postTotalShares'],
+        tokenRebasedEvent.params['timeElapsed']
+    );
+
+    entityCache.saveTotalReward(entity);
+}
+
 

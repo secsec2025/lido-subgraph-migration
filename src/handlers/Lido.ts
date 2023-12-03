@@ -2,21 +2,22 @@ import {EntityCache} from "../entity-cache";
 import {LidoSubmission, LidoTransfer, NodeOperatorFees, SharesBurn} from "../model";
 import {
     _loadLidoTransferEntity,
-    _loadSharesEntity,
-    _loadTotalsEntity, _updateHolders, _updateTransferBalances,
+    _loadSharesEntity, _loadTotalRewardEntity,
+    _loadTotalsEntity, _processTokenRebase, _updateHolders, _updateTransferBalances,
     _updateTransferShares,
     isLidoTransferShares,
     isLidoV2
 } from "./helpers";
 import {
     extractPairedEvent,
-    getParsedEvent,
+    getParsedEvent, getParsedEventByName,
     getRightPairedEventByLeftLogIndex,
     ParsedEvent,
     parseEventLogs
 } from "./parser";
 import {getAddress, LIDO_ADDRESS, ZERO_ADDRESS} from "../constants";
 import assert from "assert";
+import {mainHandleSharesBurnt} from "../main-handler";
 
 export const handleSubmitted = async (sender: string, amount: bigint, referral: string, ctx: any, logEvent: any, entityCache: EntityCache) => {
 
@@ -329,4 +330,73 @@ export const handleSharesBurnt = async (account: string,preRebaseTokenAmount: bi
 
     entityCache.saveLidoTransfer(txEntity);
 
+}
+
+
+export const handleETHDistributed = async (reportTimestamp: bigint,preCLBalance: bigint, postCLBalance: bigint, withdrawalsWithdrawn: bigint, executionLayerRewardsWithdrawn: bigint, postBufferedEther: bigint, logEvent: any, entityCache: EntityCache) => {
+    // we should process token rebase here as TokenRebased event fired last, but we need new values before transfers
+    // parse all events from tx receipt
+    const parsedEvents = parseEventLogs(logEvent, LIDO_ADDRESS);
+
+    // TokenRebased event should exist
+    const tokenRebasedEvent = getParsedEventByName(parsedEvents, 'TokenRebased', BigInt(logEvent.logIndex));
+    if (!tokenRebasedEvent) {
+        console.warn(
+            'Event TokenRebased not found when ETHDistributed! block: {} txHash: {} logIdx: {} ',
+            [
+                logEvent.block.height.toString(),
+                logEvent.transactionHash,
+                logEvent.logIndex.toString(),
+            ]
+        );
+        return;
+    }
+
+    // Totals should be already non-null on oracle report
+    const totals = await _loadTotalsEntity(false, entityCache);
+    if (!totals) return;
+    assert(
+        totals.totalPooledEther === tokenRebasedEvent.params['preTotalEther'],
+        "totalPooledEther mismatch report's preTotalEther"
+    );
+    assert(
+        totals.totalShares === tokenRebasedEvent.params['preTotalShares'],
+        "totalShares mismatch report's preTotalShares"
+    );
+
+    // update totalPooledEther for correct SharesBurnt
+    totals.totalPooledEther = tokenRebasedEvent.params['postTotalEther'];
+    entityCache.saveTotals(totals);
+
+    // @note saved Transfer event from WQ to Burner will contain wrong totalPooledEther value due to internal update of CL_BALANCE without event
+    // try to find and handle SharesBurnt event which expect not yet changed totalShares
+    const sharesBurntEvent = getParsedEventByName(parsedEvents, 'SharesBurnt', BigInt(logEvent.logIndex), BigInt(tokenRebasedEvent.event.logIndex));
+    if (sharesBurntEvent) {
+        await mainHandleSharesBurnt(sharesBurntEvent.event, entityCache);
+    }
+
+    // override and save correct totalShares for next mint transfers
+    // (i.e. for calculation minted rewards), as we need new values before transfers
+    totals.totalShares = tokenRebasedEvent.params['postTotalShares'];
+    entityCache.saveTotals(totals);
+
+    // Don’t mint/distribute any protocol fee on the non-profitable Lido oracle report
+    // (when consensus layer balance delta is zero or negative).
+    // See LIP-12 for details:
+    // https://research.lido.fi/t/lip-12-on-chain-part-of-the-rewards-distribution-after-the-merge/1625
+    const postCLTotalBalance = postCLBalance + withdrawalsWithdrawn;
+    if (postCLTotalBalance <= preCLBalance) return;
+
+    const totalRewards = postCLTotalBalance - preCLBalance + executionLayerRewardsWithdrawn;
+
+    const totalRewardsEntity = await _loadTotalRewardEntity(logEvent, true, entityCache);
+    if (!totalRewardsEntity) return;
+
+    totalRewardsEntity.totalRewards = totalRewards;
+    totalRewardsEntity.totalRewardsWithFees = totalRewardsEntity.totalRewards;
+    totalRewardsEntity.mevFee = executionLayerRewardsWithdrawn;
+
+    await _processTokenRebase(totalRewardsEntity, logEvent, tokenRebasedEvent, parsedEvents, entityCache);
+
+    entityCache.saveTotalReward(totalRewardsEntity);
 }

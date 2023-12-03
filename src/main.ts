@@ -8,7 +8,8 @@ import {events as lidoEvents} from './abi/Lido';
 import {handleSetApp} from './handlers/LidoDAO';
 
 import {EntityCache} from './entity-cache';
-import {handleSharesBurnt, handleSubmitted, handleTransfer} from "./handlers/Lido";
+import {handleETHDistributed, handleSubmitted, handleTransfer} from "./handlers/Lido";
+import {mainHandleSharesBurnt} from "./main-handler";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -38,9 +39,16 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
             // Lido.handleSharesBurnt
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.SharesBurnt.topic) {
                 console.log(`Lido.handleSharesBurnt - Start`);
-                const {account,preRebaseTokenAmount, postRebaseTokenAmount, sharesAmount } = lidoEvents.SharesBurnt.decode(e);
-                await handleSharesBurnt(account.toLowerCase(), preRebaseTokenAmount, postRebaseTokenAmount, sharesAmount, e, entityCache);
+                await mainHandleSharesBurnt(e, entityCache);
                 console.log(`Lido.handleSharesBurnt - End`);
+            }
+
+            // Lido.handleETHDistributed
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.ETHDistributed.topic) {
+                console.log(`Lido.handleETHDistributed - Start`);
+                const {reportTimestamp,preCLBalance, postCLBalance, withdrawalsWithdrawn, executionLayerRewardsWithdrawn, postBufferedEther } = lidoEvents.ETHDistributed.decode(e);
+                await handleETHDistributed(reportTimestamp,preCLBalance, postCLBalance, withdrawalsWithdrawn, executionLayerRewardsWithdrawn, postBufferedEther, e, entityCache);
+                console.log(`Lido.handleETHDistributed - End`);
             }
         }
     }

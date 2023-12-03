@@ -1,4 +1,5 @@
 import {EntityCache} from "./entity-cache";
+import {BigDecimal} from "@subsquid/big-decimal";
 
 export const NETWORK: string = process.env['DATASOURCE_NAME']!;
 
@@ -9,6 +10,21 @@ export const LIDO_ADDRESS: string = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
 
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000';
+
+
+/**
+ Units
+ **/
+
+export const CALCULATION_UNIT = BigInt(10000);
+export const SECONDS_PER_YEAR = BigInt(60 * 60 * 24 * 365);
+
+export const ONE_HUNDRED_PERCENT = BigDecimal(100);
+
+export const E27_PRECISION_BASE = BigDecimal('1000000000000000000000000000');
+
+// 1 ETH in WEI
+export const ETHER = BigInt('1000000000000000000');
 
 
 /**
