@@ -23,6 +23,12 @@ export const processor = new EvmBatchProcessor()
             lidoEvents.SharesBurnt.topic, lidoEvents.ETHDistributed.topic, lidoEvents.TokenRebased.topic ],
         range: {from: 11473216},
         transaction: true
+    }).addLog({
+        address: [LIDO_ADDRESS],
+        topic0: [lidoEvents.LidoLocatorSet.topic, lidoEvents.Stopped.topic, lidoEvents.Resumed.topic,
+            lidoEvents.StakingLimitRemoved.topic, lidoEvents.StakingLimitSet.topic, lidoEvents.StakingResumed.topic,
+            lidoEvents.StakingPaused.topic],
+        range: {from: 11473216},
     }).setFields({
         log: {
             address: true,

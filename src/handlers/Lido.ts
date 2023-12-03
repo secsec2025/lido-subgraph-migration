@@ -1,6 +1,7 @@
 import {EntityCache} from "../entity-cache";
 import {LidoSubmission, LidoTransfer, NodeOperatorFees, SharesBurn} from "../model";
 import {
+    _loadLidoConfig,
     _loadLidoTransferEntity,
     _loadSharesEntity, _loadTotalRewardEntity,
     _loadTotalsEntity, _processTokenRebase, _updateHolders, _updateTransferBalances,
@@ -399,4 +400,49 @@ export const handleETHDistributed = async (reportTimestamp: bigint,preCLBalance:
     await _processTokenRebase(totalRewardsEntity, logEvent, tokenRebasedEvent, parsedEvents, entityCache);
 
     entityCache.saveTotalReward(totalRewardsEntity);
+}
+
+
+export const handleLidoLocatorSet = async (lidoLocator: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.lidoLocator = lidoLocator;
+    entityCache.saveLidoConfig(entity);
+}
+
+
+export const handleStopped = async (logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.isStopped = true;
+    entityCache.saveLidoConfig(entity);
+}
+
+export const handleResumed = async (logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.isStopped = false;
+    entityCache.saveLidoConfig(entity);
+}
+
+export const handleStakingLimitRemoved = async (logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.maxStakeLimit = 0n;
+    entityCache.saveLidoConfig(entity);
+}
+
+export const handleStakingLimitSet = async (maxStakeLimit: bigint, stakeLimitIncreasePerBlock: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.maxStakeLimit = maxStakeLimit;
+    entity.stakeLimitIncreasePerBlock = stakeLimitIncreasePerBlock;
+    entityCache.saveLidoConfig(entity);
+}
+
+export const handleStakingResumed = async (logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.isStakingPaused = false;
+    entityCache.saveLidoConfig(entity);
+}
+
+export const handleStakingPaused = async (logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.isStakingPaused = true;
+    entityCache.saveLidoConfig(entity);
 }

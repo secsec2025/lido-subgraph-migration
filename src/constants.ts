@@ -58,7 +58,7 @@ BURNER_ADDRESSES.set('holesky', '0x4E46BD7147ccf666E1d73A3A456fC7a68de82eCA')
 
 // We presume here that initially insurance fund was the treasury
 const getInsuranceFund = async (entityCache: EntityCache): Promise<string> => {
-    const cfg = await entityCache.getLidoConfig(' ');
+    const cfg = await entityCache.getLidoConfig('');
     return cfg && cfg.insuranceFund ? cfg.insuranceFund : TREASURY_ADDRESSES.get(NETWORK)!;
 }
 

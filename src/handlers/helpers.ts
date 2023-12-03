@@ -1,4 +1,4 @@
-import {Holder, LidoTransfer, Shares, Stats, TotalReward, Totals} from "../model";
+import {Holder, LidoConfig, LidoTransfer, Shares, Stats, TotalReward, Totals} from "../model";
 import {
     CALCULATION_UNIT, E27_PRECISION_BASE,
     getAddress,
@@ -370,6 +370,26 @@ export async function _processTokenRebase(entity: TotalReward, ethDistributedEve
     );
 
     entityCache.saveTotalReward(entity);
+}
+
+
+export async function _loadLidoConfig(entityCache: EntityCache): Promise<LidoConfig> {
+    let entity = await entityCache.getLidoConfig('');
+    if (!entity) {
+        entity = new LidoConfig({
+            id: '',
+            isStopped: true,
+            isStakingPaused: true,
+            maxStakeLimit: 0n,
+            stakeLimitIncreasePerBlock: 0n,
+            elRewardsVault: ZERO_ADDRESS,
+            elRewardsWithdrawalLimitPoints: 0n,
+            withdrawalCredentials: ZERO_ADDRESS,
+            wcSetBy: ZERO_ADDRESS,
+            lidoLocator: ZERO_ADDRESS,
+        });
+    }
+    return entity;
 }
 
 

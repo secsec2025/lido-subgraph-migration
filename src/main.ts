@@ -8,7 +8,18 @@ import {events as lidoEvents} from './abi/Lido';
 import {handleSetApp} from './handlers/LidoDAO';
 
 import {EntityCache} from './entity-cache';
-import {handleETHDistributed, handleSubmitted, handleTransfer} from "./handlers/Lido";
+import {
+    handleETHDistributed,
+    handleLidoLocatorSet,
+    handleResumed,
+    handleStakingLimitRemoved,
+    handleStakingLimitSet,
+    handleStakingPaused,
+    handleStakingResumed,
+    handleStopped,
+    handleSubmitted,
+    handleTransfer
+} from "./handlers/Lido";
 import {mainHandleSharesBurnt} from "./main-handler";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
@@ -50,6 +61,58 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 await handleETHDistributed(reportTimestamp,preCLBalance, postCLBalance, withdrawalsWithdrawn, executionLayerRewardsWithdrawn, postBufferedEther, e, entityCache);
                 console.log(`Lido.handleETHDistributed - End`);
             }
+
+            // Lido.handleLidoLocatorSet
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.LidoLocatorSet.topic) {
+                console.log(`Lido.handleLidoLocatorSet - Start`);
+                const { lidoLocator } = lidoEvents.LidoLocatorSet.decode(e);
+                await handleLidoLocatorSet(lidoLocator.toLowerCase(), e, entityCache);
+                console.log(`Lido.handleLidoLocatorSet - End`);
+            }
+
+            // Lido.handleStopped
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.Stopped.topic) {
+                console.log(`Lido.handleStopped - Start`);
+                await handleStopped(e, entityCache);
+                console.log(`Lido.handleStopped - End`);
+            }
+
+            // Lido.handleResumed
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.Resumed.topic) {
+                console.log(`Lido.handleResumed - Start`);
+                await handleResumed(e, entityCache);
+                console.log(`Lido.handleResumed - End`);
+            }
+
+            // Lido.handleStakingLimitRemoved
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.StakingLimitRemoved.topic) {
+                console.log(`Lido.handleStakingLimitRemoved - Start`);
+                await handleStakingLimitRemoved(e, entityCache);
+                console.log(`Lido.handleStakingLimitRemoved - End`);
+            }
+
+            // Lido.handleStakingLimitSet
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.StakingLimitSet.topic) {
+                console.log(`Lido.handleStakingLimitSet - Start`);
+                const { maxStakeLimit, stakeLimitIncreasePerBlock } = lidoEvents.StakingLimitSet.decode(e);
+                await handleStakingLimitSet(maxStakeLimit, stakeLimitIncreasePerBlock, e, entityCache);
+                console.log(`Lido.handleStakingLimitSet - End`);
+            }
+
+            // Lido.handleStakingResumed
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.StakingResumed.topic) {
+                console.log(`Lido.handleStakingResumed - Start`);
+                await handleStakingResumed(e, entityCache);
+                console.log(`Lido.handleStakingResumed - End`);
+            }
+
+            // Lido.handleStakingPaused
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.StakingPaused.topic) {
+                console.log(`Lido.handleStakingPaused - Start`);
+                await handleStakingPaused(e, entityCache);
+                console.log(`Lido.handleStakingPaused - End`);
+            }
+
         }
     }
 
