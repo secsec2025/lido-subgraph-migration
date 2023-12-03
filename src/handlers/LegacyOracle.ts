@@ -7,7 +7,7 @@ import {
     _loadTotalsEntity,
     isLidoV2
 } from "./helpers";
-import {BeaconReport, NodeOperatorsShares, OracleCompleted, OracleExpectedEpoch} from "../model";
+import {BeaconReport, NodeOperatorsShares, OracleCompleted, OracleExpectedEpoch, OracleMember} from "../model";
 import {CALCULATION_UNIT, DEPOSIT_AMOUNT, getAddress, NETWORK} from "../constants";
 import {getParsedEventByName, parseEventLogs} from "./parser";
 import {getRewardsDistributionFromNodeOperatorsRegistryContract} from "../helpers/contract-helper";
@@ -271,3 +271,84 @@ export const handleCompleted = async (epochId: bigint, beaconBalance: bigint, be
 
     entityCache.saveTotalReward(totalRewardsEntity);
 }
+
+
+export const handlePostTotalShares = async (postTotalPooledEther: bigint, preTotalPooledEther: bigint, timeElapsed: bigint, totalShares: bigint, logEvent: any, entityCache: EntityCache) => {
+    if (await isLidoV2(BigInt(logEvent.block.height), entityCache)) return;
+
+    const totalRewardsEntity = await _loadTotalRewardEntity(logEvent, false, entityCache);
+    if (!totalRewardsEntity) return;
+
+    totalRewardsEntity.timeElapsed = timeElapsed;
+    _calcAPR_v1(
+        totalRewardsEntity,
+        preTotalPooledEther,
+        postTotalPooledEther,
+        timeElapsed,
+        totalRewardsEntity.feeBasis
+    );
+    entityCache.saveTotalReward(totalRewardsEntity);
+}
+
+
+export const handleMemberAdded = async (member: string, logEvent: any, entityCache: EntityCache) => {
+    let entity = new OracleMember({
+        id: member,
+        member: member,
+        removed: false,
+        block: BigInt(logEvent.block.height),
+        blockTime: BigInt(logEvent.block.timestamp),
+        transactionHash: logEvent.transactionHash,
+        logIndex: BigInt(logEvent.logIndex)
+    });
+    entityCache.saveOracleMember(entity);
+}
+
+export const handleMemberRemoved = async (member: string, logEvent: any, entityCache: EntityCache) => {
+    let entity = await entityCache.getOracleMember(member);
+    if (!entity) return;
+    entity.removed = true;
+    entityCache.saveOracleMember(entity);
+}
+
+export const handleContractVersionSet = async (version: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOracleConfig(entityCache);
+    entity.contractVersion = version;
+    entityCache.saveOracleConfig(entity);
+}
+
+export const handleQuorumChanged = async (quorum: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOracleConfig(entityCache);
+    entity.quorum = quorum;
+    entityCache.saveOracleConfig(entity);
+}
+
+export const handleBeaconSpecSet = async (epochsPerFrame: bigint, slotsPerEpoch: bigint, secondsPerSlot: bigint, genesisTime: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOracleConfig(entityCache);
+    entity.epochsPerFrame = epochsPerFrame;
+    entity.slotsPerEpoch = slotsPerEpoch;
+    entity.secondsPerSlot = secondsPerSlot;
+    entity.genesisTime = genesisTime;
+    entityCache.saveOracleConfig(entity);
+}
+
+export const handleBeaconReportReceiverSet = async (callback: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOracleConfig(entityCache);
+    entity.beaconReportReceiver = callback;
+    entityCache.saveOracleConfig(entity);
+}
+
+export const handleAllowedBeaconBalanceRelativeDecreaseSet = async (value: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOracleConfig(entityCache);
+    entity.allowedBeaconBalanceRelativeDecrease = value;
+    entityCache.saveOracleConfig(entity);
+}
+
+export const handleAllowedBeaconBalanceAnnualRelativeIncreaseSet = async (value: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOracleConfig(entityCache);
+    entity.allowedBeaconBalanceAnnualRelativeIncrease = value;
+    entityCache.saveOracleConfig(entity);
+}
+
+
+

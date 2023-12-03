@@ -23,7 +23,17 @@ import {
 } from "./handlers/Lido";
 import {mainHandleSharesBurnt} from "./main-handler";
 import {events as legacyOracleEvents} from "./abi/LegacyOracle";
-import {handleCompleted} from "./handlers/LegacyOracle";
+import {
+    handleAllowedBeaconBalanceAnnualRelativeIncreaseSet,
+    handleAllowedBeaconBalanceRelativeDecreaseSet,
+    handleBeaconReportReceiverSet,
+    handleBeaconSpecSet,
+    handleCompleted,
+    handleContractVersionSet,
+    handleMemberAdded,
+    handleMemberRemoved,
+    handlePostTotalShares, handleQuorumChanged
+} from "./handlers/LegacyOracle";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -174,6 +184,74 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
             else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.Completed.topic) {
                 const { epochId, beaconBalance, beaconValidators } = legacyOracleEvents.Completed.decode(e);
                 await handleCompleted(epochId, beaconBalance, beaconValidators, ctx, e, entityCache);
+            }
+
+            // LegacyOracle.handlePostTotalShares
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.PostTotalShares.topic) {
+                console.log(`LegacyOracle.handlePostTotalShares - Start`);
+                const { postTotalPooledEther, preTotalPooledEther, timeElapsed, totalShares } = legacyOracleEvents.PostTotalShares.decode(e);
+                await handlePostTotalShares(postTotalPooledEther, preTotalPooledEther, timeElapsed, totalShares, e, entityCache);
+                console.log(`LegacyOracle.handlePostTotalShares - End`);
+            }
+
+            // LegacyOracle.handleMemberAdded
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.MemberAdded.topic) {
+                const { member } = legacyOracleEvents.MemberAdded.decode(e);
+                await handleMemberAdded(member.toLowerCase(), e, entityCache);
+            }
+
+            // LegacyOracle.handleMemberRemoved
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.MemberRemoved.topic) {
+                console.log(`LegacyOracle.handleMemberRemoved - Start`);
+                const { member } = legacyOracleEvents.MemberRemoved.decode(e);
+                await handleMemberRemoved(member.toLowerCase(), e, entityCache);
+                console.log(`LegacyOracle.handleMemberRemoved - End`);
+            }
+
+            // LegacyOracle.handleContractVersionSet
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.ContractVersionSet.topic) {
+                console.log(`LegacyOracle.handleContractVersionSet - Start`);
+                const { version } = legacyOracleEvents.ContractVersionSet.decode(e);
+                await handleContractVersionSet(version, e, entityCache);
+                console.log(`LegacyOracle.handleContractVersionSet - End`);
+            }
+
+            // LegacyOracle.handleQuorumChanged
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.QuorumChanged.topic) {
+                const { quorum } = legacyOracleEvents.QuorumChanged.decode(e);
+                await handleQuorumChanged(quorum, e, entityCache);
+            }
+
+            // LegacyOracle.handleBeaconSpecSet
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.BeaconSpecSet.topic) {
+                console.log(`LegacyOracle.handleBeaconSpecSet - Start`);
+                const { epochsPerFrame, slotsPerEpoch, secondsPerSlot, genesisTime } = legacyOracleEvents.BeaconSpecSet.decode(e);
+                await handleBeaconSpecSet(epochsPerFrame, slotsPerEpoch, secondsPerSlot, genesisTime, e, entityCache);
+                console.log(`LegacyOracle.handleBeaconSpecSet - End`);
+            }
+
+            // LegacyOracle.handleBeaconReportReceiverSet
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.BeaconReportReceiverSet.topic) {
+                console.log(`LegacyOracle.handleBeaconReportReceiverSet - Start`);
+                const { callback } = legacyOracleEvents.BeaconReportReceiverSet.decode(e);
+                await handleBeaconReportReceiverSet(callback.toLowerCase(), e, entityCache);
+                console.log(`LegacyOracle.handleBeaconReportReceiverSet - End`);
+            }
+
+            // LegacyOracle.handleAllowedBeaconBalanceRelativeDecreaseSet
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.AllowedBeaconBalanceRelativeDecreaseSet.topic) {
+                console.log(`LegacyOracle.handleAllowedBeaconBalanceRelativeDecreaseSet - Start`);
+                const { value } = legacyOracleEvents.AllowedBeaconBalanceRelativeDecreaseSet.decode(e);
+                await handleAllowedBeaconBalanceRelativeDecreaseSet(value, e, entityCache);
+                console.log(`LegacyOracle.handleAllowedBeaconBalanceRelativeDecreaseSet - End`);
+            }
+
+            // LegacyOracle.handleAllowedBeaconBalanceAnnualRelativeIncreaseSet
+            else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.AllowedBeaconBalanceAnnualRelativeIncreaseSet.topic) {
+                console.log(`LegacyOracle.handleAllowedBeaconBalanceAnnualRelativeIncreaseSet - Start`);
+                const { value } = legacyOracleEvents.AllowedBeaconBalanceAnnualRelativeIncreaseSet.decode(e);
+                await handleAllowedBeaconBalanceAnnualRelativeIncreaseSet(value, e, entityCache);
+                console.log(`LegacyOracle.handleAllowedBeaconBalanceAnnualRelativeIncreaseSet - End`);
             }
 
         }

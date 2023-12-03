@@ -161,6 +161,10 @@ export async function _updateTransferShares(entity: LidoTransfer, entityCache: E
         // Someone can and managed to produce events of 0 to 0 transfers
         const sharesFromEntity = await _loadSharesEntity(entity.from, true, entityCache);
         if (!sharesFromEntity) return;
+        // if (entity.transactionHash === '0x4884100e3bc4af28dac3688f68fa351095c83e6dd971873b2e16f60d04288760') {
+        //     console.log(entity);
+        //     console.log(sharesFromEntity);
+        // }
         entity.sharesBeforeDecrease = sharesFromEntity.shares;
 
         if (entity.from !== entity.to && entity.shares !== 0n) {

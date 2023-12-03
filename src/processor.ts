@@ -38,6 +38,13 @@ export const processor = new EvmBatchProcessor()
         topic0: [legacyOracleEvents.Completed.topic, legacyOracleEvents.PostTotalShares.topic],
         range: {from: 11473216},
         transaction: true
+    }).addLog({
+        address: [LEGACY_ORACLE_ADDRESS],
+        topic0: [legacyOracleEvents.PostTotalShares.topic, legacyOracleEvents.MemberAdded.topic, legacyOracleEvents.MemberRemoved.topic,
+            legacyOracleEvents.ContractVersionSet.topic, legacyOracleEvents.QuorumChanged.topic, legacyOracleEvents.BeaconSpecSet.topic,
+            legacyOracleEvents.BeaconReportReceiverSet.topic, legacyOracleEvents.AllowedBeaconBalanceRelativeDecreaseSet.topic,
+            legacyOracleEvents.AllowedBeaconBalanceAnnualRelativeIncreaseSet.topic],
+        range: {from: 11473216}
     }).setFields({
         log: {
             address: true,

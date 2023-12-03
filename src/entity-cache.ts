@@ -3,7 +3,7 @@ import {
     LidoConfig,
     LidoSubmission,
     LidoTransfer,
-    NodeOperatorFees, NodeOperatorsShares, OracleCompleted, OracleConfig, OracleExpectedEpoch,
+    NodeOperatorFees, NodeOperatorsShares, OracleCompleted, OracleConfig, OracleExpectedEpoch, OracleMember,
     Shares, SharesBurn, Stats,
     TotalReward,
     Totals
@@ -31,6 +31,7 @@ export class EntityCache {
     public oracleConfig!: Map<string, OracleConfig>;
     public oracleExpectedEpoch!: Map<string, OracleExpectedEpoch>;
     public beaconReports!: Map<string, BeaconReport>;
+    public oracleMembers!: Map<string, OracleMember>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -58,6 +59,7 @@ export class EntityCache {
         this.oracleConfig = new Map<string, OracleConfig>();
         this.oracleExpectedEpoch = new Map<string, OracleExpectedEpoch>();
         this.beaconReports = new Map<string, BeaconReport>();
+        this.oracleMembers = new Map<string, OracleMember>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -328,6 +330,20 @@ export class EntityCache {
         this.beaconReports.set(ls.id, ls);
     }
 
+    getOracleMember = async (id: string): Promise<OracleMember | undefined> => {
+        // Check if entity exists in cache
+        if (this.oracleMembers.has(id)) return this.oracleMembers.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(OracleMember, id);
+        if (a) this.oracleMembers.set(id, a);
+        return a;
+    }
+
+    saveOracleMember = (ls: OracleMember) => {
+        this.oracleMembers.set(ls.id, ls);
+    }
+
 
 
 
@@ -351,6 +367,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.oracleConfig.values()]);
         await this.ctx.store.upsert([...this.oracleExpectedEpoch.values()]);
         await this.ctx.store.upsert([...this.beaconReports.values()]);
+        await this.ctx.store.upsert([...this.oracleMembers.values()]);
 
         if (flushCache) {
             this.initializeMaps();
