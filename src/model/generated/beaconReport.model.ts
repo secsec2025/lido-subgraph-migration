@@ -19,6 +19,6 @@ export class BeaconReport {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     beaconValidators!: bigint
 
-    @Column_("bytea", {nullable: false})
-    caller!: Uint8Array
+    @Column_("text", {nullable: false})
+    caller!: string
 }

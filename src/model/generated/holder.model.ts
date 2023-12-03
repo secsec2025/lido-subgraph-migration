@@ -9,8 +9,8 @@ export class Holder {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    address!: Uint8Array
+    @Column_("text", {nullable: false})
+    address!: string
 
     @Column_("bool", {nullable: false})
     hasBalance!: boolean

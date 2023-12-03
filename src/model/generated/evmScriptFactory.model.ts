@@ -9,11 +9,11 @@ export class EVMScriptFactory {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    address!: Uint8Array
+    @Column_("text", {nullable: false})
+    address!: string
 
-    @Column_("bytea", {nullable: false})
-    permissions!: Uint8Array
+    @Column_("text", {nullable: false})
+    permissions!: string
 
     @Column_("bool", {nullable: false})
     isActive!: boolean

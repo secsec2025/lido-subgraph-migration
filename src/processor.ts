@@ -19,7 +19,7 @@ export const processor = new EvmBatchProcessor()
         range: {from: 11473216 }
     }).addLog({
         address: [LIDO_ADDRESS],
-        topic0: [lidoEvents.Submitted.topic, lidoEvents.Transfer.topic],
+        topic0: [lidoEvents.Submitted.topic, lidoEvents.Transfer.topic, lidoEvents.TransferShares.topic],
         range: {from: 11473216},
         transaction: true
     }).setFields({

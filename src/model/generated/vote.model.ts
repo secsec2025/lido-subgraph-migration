@@ -15,8 +15,8 @@ export class Vote {
     @ManyToOne_(() => Voting, {nullable: true})
     voting!: Voting
 
-    @Column_("bytea", {nullable: false})
-    voter!: Uint8Array
+    @Column_("text", {nullable: false})
+    voter!: string
 
     @Column_("bool", {nullable: false})
     supports!: boolean

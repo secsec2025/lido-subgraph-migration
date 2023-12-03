@@ -10,11 +10,11 @@ export class LidoTransfer {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    from!: Uint8Array
+    @Column_("text", {nullable: false})
+    from!: string
 
-    @Column_("bytea", {nullable: false})
-    to!: Uint8Array
+    @Column_("text", {nullable: false})
+    to!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     value!: bigint
@@ -52,8 +52,8 @@ export class LidoTransfer {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     transactionIndex!: bigint

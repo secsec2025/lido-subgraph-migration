@@ -15,8 +15,11 @@ export class NodeOperatorFees {
     @ManyToOne_(() => TotalReward, {nullable: true})
     totalReward!: TotalReward
 
-    @Column_("bytea", {nullable: false})
-    address!: Uint8Array
+    @Column_({nullable: true})
+    totalRewardId!: string | undefined | null;
+
+    @Column_("text", {nullable: false})
+    address!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     fee!: bigint

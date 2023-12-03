@@ -10,11 +10,11 @@ export class LidoApproval {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    owner!: Uint8Array
+    @Column_("text", {nullable: false})
+    owner!: string
 
-    @Column_("bytea", {nullable: false})
-    spender!: Uint8Array
+    @Column_("text", {nullable: false})
+    spender!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     value!: bigint

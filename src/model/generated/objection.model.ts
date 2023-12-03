@@ -14,8 +14,8 @@ export class Objection {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     motionId!: bigint
 
-    @Column_("bytea", {nullable: false})
-    objector!: Uint8Array
+    @Column_("text", {nullable: false})
+    objector!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     weight!: bigint
@@ -30,8 +30,8 @@ export class Objection {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     logIndex!: bigint

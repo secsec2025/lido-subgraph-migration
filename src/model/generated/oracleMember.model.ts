@@ -10,8 +10,8 @@ export class OracleMember {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    member!: Uint8Array
+    @Column_("text", {nullable: false})
+    member!: string
 
     @Column_("bool", {nullable: false})
     removed!: boolean
@@ -22,8 +22,8 @@ export class OracleMember {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     logIndex!: bigint

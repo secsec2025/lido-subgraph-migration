@@ -14,8 +14,8 @@ export class NodeOperatorSigningKey {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     operatorId!: bigint
 
-    @Column_("bytea", {nullable: false})
-    pubkey!: Uint8Array
+    @Column_("text", {nullable: false})
+    pubkey!: string
 
     @Column_("bool", {nullable: false})
     removed!: boolean
@@ -30,8 +30,8 @@ export class NodeOperatorSigningKey {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     logIndex!: bigint

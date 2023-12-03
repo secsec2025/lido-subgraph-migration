@@ -18,8 +18,8 @@ export class OracleReport {
     @ManyToOne_(() => TotalReward, {nullable: true})
     totalReward!: TotalReward
 
-    @Column_("bytea", {nullable: false})
-    hash!: Uint8Array
+    @Column_("text", {nullable: false})
+    hash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     itemsProcessed!: bigint

@@ -13,8 +13,8 @@ export class NodeOperator {
     @Column_("text", {nullable: false})
     name!: string
 
-    @Column_("bytea", {nullable: false})
-    rewardAddress!: Uint8Array
+    @Column_("text", {nullable: false})
+    rewardAddress!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     stakingLimit!: bigint
@@ -37,8 +37,8 @@ export class NodeOperator {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     logIndex!: bigint

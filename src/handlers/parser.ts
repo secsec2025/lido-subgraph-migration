@@ -1,6 +1,5 @@
 import {ZERO_ADDRESS} from "../constants";
 import {parserMap} from "../parserData";
-import {LogEvent} from "../abi/abi.support";
 
 
 export class ParsedEvent {
@@ -79,5 +78,14 @@ export function extractPairedEvent(events: ParsedEvent[], leftName: string, righ
 
 export function getParsedEvent(events: ParsedEvent[], pos: number = 0): ParsedEvent {
     return events[pos];
+}
+
+export function getRightPairedEventByLeftLogIndex(events: ParsedEvent[][], logIndex: bigint): ParsedEvent | null {
+    for (let i = 0; i < events.length; i++) {
+        if (events[i][0].event.logIndex === logIndex) {
+            return getParsedEvent(events[i], 1);
+        }
+    }
+    return null;
 }
 

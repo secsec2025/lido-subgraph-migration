@@ -15,8 +15,8 @@ export class NodeOperatorsShares {
     @ManyToOne_(() => TotalReward, {nullable: true})
     totalReward!: TotalReward
 
-    @Column_("bytea", {nullable: false})
-    address!: Uint8Array
+    @Column_("text", {nullable: false})
+    address!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     shares!: bigint

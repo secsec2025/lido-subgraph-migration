@@ -10,8 +10,8 @@ export class SharesBurn {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    account!: Uint8Array
+    @Column_("text", {nullable: false})
+    account!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     postRebaseTokenAmount!: bigint

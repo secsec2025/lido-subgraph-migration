@@ -37,6 +37,6 @@ export class OracleConfig {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     genesisTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    beaconReportReceiver!: Uint8Array
+    @Column_("text", {nullable: false})
+    beaconReportReceiver!: string
 }

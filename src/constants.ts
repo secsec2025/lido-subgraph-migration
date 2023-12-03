@@ -1,3 +1,5 @@
+import {EntityCache} from "./entity-cache";
+
 export const NETWORK: string = process.env['DATASOURCE_NAME']!;
 
 
@@ -7,6 +9,61 @@ export const LIDO_ADDRESS: string = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
 
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000';
+
+
+/**
+ Addresses
+ **/
+
+const LIDO_ADDRESSES = new Map<string, string>()
+LIDO_ADDRESSES.set('mainnet', '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84')
+LIDO_ADDRESSES.set('goerli', '0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F')
+LIDO_ADDRESSES.set('holesky', '0x3F1c547b21f65e10480dE3ad8E19fAAC46C95034')
+
+const NOS_ADDRESSES = new Map<string, string>()
+NOS_ADDRESSES.set('mainnet', '0x55032650b14df07b85bF18A3a3eC8E0Af2e028d5')
+NOS_ADDRESSES.set('goerli', '0x9D4AF1Ee19Dad8857db3a45B0374c81c8A1C6320')
+NOS_ADDRESSES.set('holesky', '0x595F64Ddc3856a3b5Ff4f4CC1d1fb4B46cFd2bAC')
+
+const TREASURY_ADDRESSES = new Map<string, string>()
+TREASURY_ADDRESSES.set('mainnet', '0x3e40D73EB977Dc6a537aF587D48316feE66E9C8c')
+TREASURY_ADDRESSES.set('goerli', '0x4333218072D5d7008546737786663c38B4D561A4')
+TREASURY_ADDRESSES.set('holesky', '0xE92329EC7ddB11D25e25b3c21eeBf11f15eB325d')
+
+const SR_ADDRESSES = new Map<string, string>()
+SR_ADDRESSES.set('mainnet', '0xFdDf38947aFB03C621C71b06C9C70bce73f12999')
+SR_ADDRESSES.set('goerli', '0xa3Dbd317E53D363176359E10948BA0b1c0A4c820')
+SR_ADDRESSES.set('holesky', '0xd6EbF043D30A7fe46D1Db32BA90a0A51207FE229')
+
+const BURNER_ADDRESSES = new Map<string, string>()
+BURNER_ADDRESSES.set('mainnet', '0xD15a672319Cf0352560eE76d9e89eAB0889046D3')
+BURNER_ADDRESSES.set('goerli', '0x20c61C07C2E2FAb04BF5b4E12ce45a459a18f3B1')
+BURNER_ADDRESSES.set('holesky', '0x4E46BD7147ccf666E1d73A3A456fC7a68de82eCA')
+
+// We presume here that initially insurance fund was the treasury
+const getInsuranceFund = async (entityCache: EntityCache): Promise<string> => {
+    const cfg = await entityCache.getLidoConfig(' ');
+    return cfg && cfg.insuranceFund ? cfg.insuranceFund : TREASURY_ADDRESSES.get(NETWORK)!;
+}
+
+export const getAddress = async (contract: string, entityCache: EntityCache): Promise<string | undefined | null> => {
+    return contract === 'LIDO'
+        ? LIDO_ADDRESSES.get(NETWORK)
+        : contract === 'STAKING_ROUTER'
+            ? SR_ADDRESSES.get(NETWORK)
+            : contract === 'NO_REGISTRY'
+                ? NOS_ADDRESSES.get(NETWORK)
+                : contract === 'BURNER'
+                    ? BURNER_ADDRESSES.get(NETWORK)
+                    : contract === 'INSURANCE_FUND'
+                        ? await getInsuranceFund(entityCache)
+                        : contract == 'TREASURY'
+                            ? TREASURY_ADDRESSES.get(NETWORK)
+                            : null;
+}
+
+
+
 
 
 export const KERNEL_APP_BASES_NAMESPACE: string = '0xf1f3eb40f5bc1ad1344716ced8b8a0431d840b5783aea1fd01786bc26f35ac0f';

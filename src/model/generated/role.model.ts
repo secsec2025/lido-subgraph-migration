@@ -9,14 +9,14 @@ export class Role {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    role!: Uint8Array
+    @Column_("text", {nullable: false})
+    role!: string
 
-    @Column_("bytea", {nullable: false})
-    address!: Uint8Array
+    @Column_("text", {nullable: false})
+    address!: string
 
-    @Column_("bytea", {nullable: false})
-    creator!: Uint8Array
+    @Column_("text", {nullable: false})
+    creator!: string
 
     @Column_("bool", {nullable: false})
     isActive!: boolean

@@ -4,9 +4,9 @@ Lido
 type LidoConfig @entity {
   id: ID!
 
-  insuranceFund: Bytes
-  oracle: Bytes
-  treasury: Bytes
+  insuranceFund: String
+  oracle: String
+  treasury: String
 
   isStopped: Boolean!
   isStakingPaused: Boolean!
@@ -14,19 +14,19 @@ type LidoConfig @entity {
   maxStakeLimit: BigInt!
   stakeLimitIncreasePerBlock: BigInt!
 
-  elRewardsVault: Bytes
+  elRewardsVault: String
   elRewardsWithdrawalLimitPoints: BigInt!
 
-  withdrawalCredentials: Bytes!
-  wcSetBy: Bytes
-  lidoLocator: Bytes
+  withdrawalCredentials: String!
+  wcSetBy: String
+  lidoLocator: String
 }
 
 type LidoTransfer @entity {
   id: ID!
 
-  from: Bytes!
-  to: Bytes!
+  from: String!
+  to: String!
   value: BigInt!
 
   shares: BigInt!
@@ -45,7 +45,7 @@ type LidoTransfer @entity {
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   transactionIndex: BigInt!
   logIndex: BigInt!
 }
@@ -53,20 +53,20 @@ type LidoTransfer @entity {
 type LidoApproval @entity {
   id: ID!
 
-  owner: Bytes!
-  spender: Bytes!
+  owner: String!
+  spender: String!
   value: BigInt!
 }
 
 # type LidoWithdrawalCredential @entity {
-#   id: Bytes!
+#   id: String!
 
-#   withdrawalCredentials: Bytes!
-#   setBy: Bytes
+#   withdrawalCredentials: String!
+#   setBy: String
 
 #   block: BigInt!
 #   blockTime: BigInt!
-#   transactionHash: Bytes!
+#   transactionHash: String!
 #   logIndex: BigInt!
 # }
 
@@ -99,14 +99,14 @@ type NodeOperatorFees @entity {
   id: ID!
   totalReward: TotalReward!
 
-  address: Bytes!
+  address: String!
   fee: BigInt!
 }
 
 # type NodeOperatorReward @entity {
-#   id: Bytes!
+#   id: String!
 #   totalReward: TotalReward!
-#   address: Bytes!
+#   address: String!
 #   fee: BigInt!
 #   shares: BigInt!
 # }
@@ -115,7 +115,7 @@ type NodeOperatorsShares @entity {
   id: ID!
   totalReward: TotalReward!
 
-  address: Bytes!
+  address: String!
   shares: BigInt!
 }
 
@@ -143,7 +143,7 @@ type Shares @entity {
 type Holder @entity {
   id: ID!
 
-  address: Bytes!
+  address: String!
   hasBalance: Boolean!
 }
 
@@ -159,15 +159,15 @@ type CurrentFees @entity {
 # type SharesTransfer @entity {
 #   id: ID!
 
-#   from: Bytes!
+#   from: String!
 #   sharesValue: BigInt!
-#   to: Bytes!
+#   to: String!
 # }
 
 type SharesBurn @entity {
   id: ID!
 
-  account: Bytes!
+  account: String!
   postRebaseTokenAmount: BigInt!
   preRebaseTokenAmount: BigInt!
   sharesAmount: BigInt!
@@ -189,7 +189,7 @@ type OracleConfig @entity {
   secondsPerSlot: BigInt!
   genesisTime: BigInt!
 
-  beaconReportReceiver: Bytes!
+  beaconReportReceiver: String!
 }
 
 type OracleReport @entity {
@@ -197,7 +197,7 @@ type OracleReport @entity {
   id: ID!
 
   totalReward: TotalReward!
-  hash: Bytes!
+  hash: String!
   itemsProcessed: BigInt!
   itemsCount: BigInt!
 }
@@ -211,7 +211,7 @@ type OracleCompleted @entity {
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
@@ -272,7 +272,7 @@ type TotalReward @entity {
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   transactionIndex: BigInt!
   logIndex: BigInt!
 }
@@ -280,12 +280,12 @@ type TotalReward @entity {
 type OracleMember @entity {
   id: ID!
 
-  member: Bytes!
+  member: String!
   removed: Boolean!
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
@@ -301,7 +301,7 @@ type BeaconReport @entity {
   epochId: BigInt!
   beaconBalance: BigInt!
   beaconValidators: BigInt!
-  caller: Bytes!
+  caller: String!
 }
 
 # """
@@ -312,14 +312,14 @@ type NodeOperatorSigningKey @entity {
   id: ID!
 
   operatorId: BigInt!
-  pubkey: Bytes!
+  pubkey: String!
   removed: Boolean!
 
   operator: NodeOperator!
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
@@ -327,7 +327,7 @@ type NodeOperator @entity {
   id: ID!
 
   name: String!
-  rewardAddress: Bytes!
+  rewardAddress: String!
   stakingLimit: BigInt!
   active: Boolean!
   totalStoppedValidators: BigInt
@@ -336,7 +336,7 @@ type NodeOperator @entity {
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
@@ -362,7 +362,7 @@ type Voting @entity {
   id: ID!
 
   index: Int!
-  creator: Bytes!
+  creator: String!
   metadata: String!
   executed: Boolean!
 
@@ -371,7 +371,7 @@ type Voting @entity {
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
@@ -379,7 +379,7 @@ type Vote @entity {
   id: ID!
 
   voting: Voting!
-  voter: Bytes!
+  voter: String!
   supports: Boolean!
   stake: BigInt!
 }
@@ -388,7 +388,7 @@ type VotingObjection @entity {
   id: ID!
 
   voting: Voting!
-  voter: Bytes!
+  voter: String!
   stake: BigInt!
 }
 
@@ -398,16 +398,16 @@ EasyTrack
 type Motion @entity {
   id: ID!
 
-  creator: Bytes!
-  evmScriptFactory: Bytes!
+  creator: String!
+  evmScriptFactory: String!
   duration: BigInt
   startDate: BigInt!
   snapshotBlock: BigInt!
   objectionsAmount: BigInt!
   objectionsAmountPct: BigInt!
   objectionsThreshold: BigInt
-  evmScriptHash: Bytes!
-  evmScriptCalldata: Bytes!
+  evmScriptHash: String!
+  evmScriptCalldata: String!
   status: String!
   enactedAt: BigInt
   canceledAt: BigInt
@@ -417,14 +417,14 @@ type Motion @entity {
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
 type EasyTrackConfig @entity {
   id: ID!
 
-  evmScriptExecutor: Bytes!
+  evmScriptExecutor: String!
   motionDuration: BigInt!
   motionsCountLimit: BigInt!
   objectionsThreshold: BigInt!
@@ -434,17 +434,17 @@ type EasyTrackConfig @entity {
 type Role @entity {
   id: ID!
 
-  role: Bytes!
-  address: Bytes!
-  creator: Bytes!
+  role: String!
+  address: String!
+  creator: String!
   isActive: Boolean!
 }
 
 type EVMScriptFactory @entity {
   id: ID!
 
-  address: Bytes!
-  permissions: Bytes!
+  address: String!
+  permissions: String!
   isActive: Boolean!
 }
 
@@ -452,14 +452,14 @@ type Objection @entity {
   id: ID!
 
   motionId: BigInt!
-  objector: Bytes!
+  objector: String!
   weight: BigInt!
 
   motion: Motion!
 
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
@@ -494,25 +494,25 @@ type WithdrawalQueueConfig @entity {
 type WithdrawalClaimed @entity {
   id: ID!
   requestId: BigInt! # uint256
-  owner: Bytes! # address
-  receiver: Bytes! # address
+  owner: String! # address
+  receiver: String! # address
   amountOfETH: BigInt! # uint256
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
 type WithdrawalRequested @entity {
   id: ID!
   requestId: BigInt! # uint256
-  requestor: Bytes! # address
-  owner: Bytes! # address
+  requestor: String! # address
+  owner: String! # address
   amountOfStETH: BigInt! # uint256
   amountOfShares: BigInt! # uint256
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }
 
@@ -525,6 +525,6 @@ type WithdrawalsFinalized @entity {
   timestamp: BigInt! # uint256
   block: BigInt!
   blockTime: BigInt!
-  transactionHash: Bytes!
+  transactionHash: String!
   logIndex: BigInt!
 }

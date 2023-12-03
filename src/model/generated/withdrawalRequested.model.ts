@@ -13,11 +13,11 @@ export class WithdrawalRequested {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     requestId!: bigint
 
-    @Column_("bytea", {nullable: false})
-    requestor!: Uint8Array
+    @Column_("text", {nullable: false})
+    requestor!: string
 
-    @Column_("bytea", {nullable: false})
-    owner!: Uint8Array
+    @Column_("text", {nullable: false})
+    owner!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     amountOfStETH!: bigint
@@ -31,8 +31,8 @@ export class WithdrawalRequested {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     logIndex!: bigint

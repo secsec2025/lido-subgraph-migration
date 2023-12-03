@@ -14,11 +14,11 @@ export class Motion {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    creator!: Uint8Array
+    @Column_("text", {nullable: false})
+    creator!: string
 
-    @Column_("bytea", {nullable: false})
-    evmScriptFactory!: Uint8Array
+    @Column_("text", {nullable: false})
+    evmScriptFactory!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
     duration!: bigint | undefined | null
@@ -38,11 +38,11 @@ export class Motion {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
     objectionsThreshold!: bigint | undefined | null
 
-    @Column_("bytea", {nullable: false})
-    evmScriptHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    evmScriptHash!: string
 
-    @Column_("bytea", {nullable: false})
-    evmScriptCalldata!: Uint8Array
+    @Column_("text", {nullable: false})
+    evmScriptCalldata!: string
 
     @Column_("text", {nullable: false})
     status!: string
@@ -65,8 +65,8 @@ export class Motion {
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     blockTime!: bigint
 
-    @Column_("bytea", {nullable: false})
-    transactionHash!: Uint8Array
+    @Column_("text", {nullable: false})
+    transactionHash!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     logIndex!: bigint

@@ -1,13 +1,29 @@
-import {AppVersion, LidoSubmission, Shares, Totals} from "./model";
+import {
+    AppVersion, Holder,
+    LidoConfig,
+    LidoSubmission,
+    LidoTransfer,
+    NodeOperatorFees, NodeOperatorsShares,
+    Shares, Stats,
+    TotalReward,
+    Totals
+} from "./model";
 import {DataHandlerContext} from "@subsquid/evm-processor";
 import {Store} from "@subsquid/typeorm-store";
 import {ZERO_ADDRESS} from "./constants";
 
 export class EntityCache {
     public appVersions!: Map<string, AppVersion>;
+    public lidoConfigs!: Map<string, LidoConfig>;
     public totals!: Map<string, Totals>;
     public shares!: Map<string, Shares>;
     public lidoSubmissions!: Map<string, LidoSubmission>;
+    public lidoTransfers!: Map<string, LidoTransfer>;
+    public totalRewards!: Map<string, TotalReward>;
+    public nodeOperatorFees!: Map<string, NodeOperatorFees>;
+    public nodeOperatorsShares!: Map<string, NodeOperatorsShares>;
+    public stats!: Map<string, Stats>;
+    public holders!: Map<string, Holder>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -18,9 +34,16 @@ export class EntityCache {
 
     private initializeMaps = () => {
         this.appVersions = new Map<string, AppVersion>();
+        this.lidoConfigs = new Map<string, LidoConfig>();
         this.totals = new Map<string, Totals>();
         this.shares = new Map<string, Shares>();
         this.lidoSubmissions = new Map<string, LidoSubmission>();
+        this.lidoTransfers = new Map<string, LidoTransfer>();
+        this.totalRewards = new Map<string, TotalReward>();
+        this.nodeOperatorFees = new Map<string, NodeOperatorFees>();
+        this.nodeOperatorsShares = new Map<string, NodeOperatorsShares>();
+        this.stats = new Map<string, Stats>();
+        this.holders = new Map<string, Holder>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -78,6 +101,20 @@ export class EntityCache {
         this.shares.set(t.id, t);
     }
 
+    getLidoTransfer = async (id: string): Promise<LidoTransfer | undefined> => {
+        // Check if entity exists in cache
+        if (this.lidoTransfers.has(id)) return this.lidoTransfers.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(LidoTransfer, id);
+        if (a) this.lidoTransfers.set(id, a);
+        return a;
+    }
+
+    saveLidoTransfer = (t: LidoTransfer) => {
+        this.lidoTransfers.set(t.id, t);
+    }
+
 
     getLidoSubmission = async (id: string): Promise<LidoSubmission | undefined> => {
         // Check if entity exists in cache
@@ -94,6 +131,92 @@ export class EntityCache {
     }
 
 
+    getTotalReward = async (id: string): Promise<TotalReward | undefined> => {
+        // Check if entity exists in cache
+        if (this.totalRewards.has(id)) return this.totalRewards.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(TotalReward, id);
+        if (a) this.totalRewards.set(id, a);
+        return a;
+    }
+
+    saveTotalReward = (ls: TotalReward) => {
+        this.totalRewards.set(ls.id, ls);
+    }
+
+    getLidoConfig = async (id: string): Promise<LidoConfig | undefined> => {
+        // Check if entity exists in cache
+        if (this.lidoConfigs.has(id)) return this.lidoConfigs.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(LidoConfig, id);
+        if (a) this.lidoConfigs.set(id, a);
+        return a;
+    }
+
+    saveLidoConfig = (ls: LidoConfig) => {
+        this.lidoConfigs.set(ls.id, ls);
+    }
+
+    getNodeOperatorFee = async (id: string): Promise<NodeOperatorFees | undefined> => {
+        // Check if entity exists in cache
+        if (this.nodeOperatorFees.has(id)) return this.nodeOperatorFees.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(NodeOperatorFees, id);
+        if (a) this.nodeOperatorFees.set(id, a);
+        return a;
+    }
+
+    saveNodeOperatorFee = (ls: NodeOperatorFees) => {
+        this.nodeOperatorFees.set(ls.id, ls);
+    }
+
+
+    getNodeOperatorsShare = async (id: string): Promise<NodeOperatorsShares | undefined> => {
+        // Check if entity exists in cache
+        if (this.nodeOperatorsShares.has(id)) return this.nodeOperatorsShares.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(NodeOperatorsShares, id);
+        if (a) this.nodeOperatorsShares.set(id, a);
+        return a;
+    }
+
+    saveNodeOperatorsShare = (ls: NodeOperatorsShares) => {
+        this.nodeOperatorsShares.set(ls.id, ls);
+    }
+
+    getStats = async (id: string): Promise<Stats | undefined> => {
+        // Check if entity exists in cache
+        if (this.stats.has(id)) return this.stats.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(Stats, id);
+        if (a) this.stats.set(id, a);
+        return a;
+    }
+
+    saveStats = (ls: Stats) => {
+        this.stats.set(ls.id, ls);
+    }
+
+    getHolder = async (id: string): Promise<Holder | undefined> => {
+        // Check if entity exists in cache
+        if (this.holders.has(id)) return this.holders.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(Holder, id);
+        if (a) this.holders.set(id, a);
+        return a;
+    }
+
+    saveHolder = (ls: Holder) => {
+        this.holders.set(ls.id, ls);
+    }
+
+
 
 
     // Persist Cache to DB
@@ -102,6 +225,12 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.totals.values()]);
         await this.ctx.store.upsert([...this.shares.values()]);
         await this.ctx.store.upsert([...this.lidoSubmissions.values()]);
+        await this.ctx.store.upsert([...this.lidoTransfers.values()]);
+        await this.ctx.store.upsert([...this.totalRewards.values()]);
+        await this.ctx.store.upsert([...this.nodeOperatorFees.values()]);
+        await this.ctx.store.upsert([...this.nodeOperatorsShares.values()]);
+        await this.ctx.store.upsert([...this.stats.values()]);
+        await this.ctx.store.upsert([...this.holders.values()]);
 
         if (flushCache) {
             this.initializeMaps();

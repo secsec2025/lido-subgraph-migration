@@ -8,7 +8,7 @@ import {events as lidoEvents} from './abi/Lido';
 import {handleSetApp} from './handlers/LidoDAO';
 
 import {EntityCache} from './entity-cache';
-import {handleSubmitted} from "./handlers/Lido";
+import {handleSubmitted, handleTransfer} from "./handlers/Lido";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -27,6 +27,12 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.Submitted.topic) {
                 const {sender, amount, referral} = lidoEvents.Submitted.decode(e);
                 await handleSubmitted(sender.toLowerCase(), amount, referral.toLowerCase(), ctx, e, entityCache);
+            }
+
+            // Lido.handleTransfer
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.Transfer.topic) {
+                const {from, to, value} = lidoEvents.Transfer.decode(e);
+                await handleTransfer(from.toLowerCase(), to.toLowerCase(), value, e, entityCache);
             }
         }
     }

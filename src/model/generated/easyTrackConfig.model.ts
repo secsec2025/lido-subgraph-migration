@@ -10,8 +10,8 @@ export class EasyTrackConfig {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("bytea", {nullable: false})
-    evmScriptExecutor!: Uint8Array
+    @Column_("text", {nullable: false})
+    evmScriptExecutor!: string
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     motionDuration!: bigint
