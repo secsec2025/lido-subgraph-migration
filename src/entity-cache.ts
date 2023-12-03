@@ -1,5 +1,5 @@
 import {
-    AppVersion, Holder,
+    AppVersion, CurrentFees, Holder, LidoApproval,
     LidoConfig,
     LidoSubmission,
     LidoTransfer,
@@ -25,6 +25,8 @@ export class EntityCache {
     public stats!: Map<string, Stats>;
     public holders!: Map<string, Holder>;
     public sharesBurn!: Map<string, SharesBurn>;
+    public lidoApprovals!: Map<string, LidoApproval>;
+    public currentFees!: Map<string, CurrentFees>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -46,6 +48,8 @@ export class EntityCache {
         this.stats = new Map<string, Stats>();
         this.holders = new Map<string, Holder>();
         this.sharesBurn = new Map<string, SharesBurn>();
+        this.lidoApprovals = new Map<string, LidoApproval>();
+        this.currentFees = new Map<string, CurrentFees>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -232,6 +236,34 @@ export class EntityCache {
         this.sharesBurn.set(ls.id, ls);
     }
 
+    getLidoApproval = async (id: string): Promise<LidoApproval | undefined> => {
+        // Check if entity exists in cache
+        if (this.lidoApprovals.has(id)) return this.lidoApprovals.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(LidoApproval, id);
+        if (a) this.lidoApprovals.set(id, a);
+        return a;
+    }
+
+    saveLidoApproval = (ls: LidoApproval) => {
+        this.lidoApprovals.set(ls.id, ls);
+    }
+
+    getCurrentFees = async (id: string): Promise<CurrentFees | undefined> => {
+        // Check if entity exists in cache
+        if (this.currentFees.has(id)) return this.currentFees.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(CurrentFees, id);
+        if (a) this.currentFees.set(id, a);
+        return a;
+    }
+
+    saveCurrentFees = (ls: CurrentFees) => {
+        this.currentFees.set(ls.id, ls);
+    }
+
 
 
 
@@ -248,6 +280,8 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.stats.values()]);
         await this.ctx.store.upsert([...this.holders.values()]);
         await this.ctx.store.upsert([...this.sharesBurn.values()]);
+        await this.ctx.store.upsert([...this.lidoApprovals.values()]);
+        await this.ctx.store.upsert([...this.currentFees.values()]);
 
         if (flushCache) {
             this.initializeMaps();

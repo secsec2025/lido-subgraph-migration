@@ -9,7 +9,8 @@ import {handleSetApp} from './handlers/LidoDAO';
 
 import {EntityCache} from './entity-cache';
 import {
-    handleETHDistributed,
+    handleApproval,
+    handleETHDistributed, handleFeeDistributionSet, handleFeeSet,
     handleLidoLocatorSet,
     handleResumed,
     handleStakingLimitRemoved,
@@ -18,7 +19,7 @@ import {
     handleStakingResumed,
     handleStopped,
     handleSubmitted,
-    handleTransfer
+    handleTransfer, handleWithdrawalCredentialsSet
 } from "./handlers/Lido";
 import {mainHandleSharesBurnt} from "./main-handler";
 
@@ -111,6 +112,38 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 console.log(`Lido.handleStakingPaused - Start`);
                 await handleStakingPaused(e, entityCache);
                 console.log(`Lido.handleStakingPaused - End`);
+            }
+
+            // Lido.handleApproval
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.Approval.topic) {
+                console.log(`Lido.handleApproval - Start`);
+                const { owner, spender, value } = lidoEvents.Approval.decode(e);
+                await handleApproval(owner.toLowerCase(), spender.toLowerCase(), value, e, entityCache);
+                console.log(`Lido.handleApproval - End`);
+            }
+
+            // Lido.handleFeeSet
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.FeeSet.topic) {
+                console.log(`Lido.handleFeeSet - Start`);
+                const { feeBasisPoints } = lidoEvents.FeeSet.decode(e);
+                await handleFeeSet(feeBasisPoints, e, entityCache);
+                console.log(`Lido.handleFeeSet - End`);
+            }
+
+            // Lido.handleFeeDistributionSet
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.FeeDistributionSet.topic) {
+                console.log(`Lido.handleFeeDistributionSet - Start`);
+                const { treasuryFeeBasisPoints, insuranceFeeBasisPoints, operatorsFeeBasisPoints } = lidoEvents.FeeDistributionSet.decode(e);
+                await handleFeeDistributionSet(treasuryFeeBasisPoints, insuranceFeeBasisPoints, operatorsFeeBasisPoints, e, entityCache);
+                console.log(`Lido.handleFeeDistributionSet - End`);
+            }
+
+            // Lido.handleWithdrawalCredentialsSet
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.WithdrawalCredentialsSet.topic) {
+                console.log(`Lido.handleWithdrawalCredentialsSet - Start`);
+                const { withdrawalCredentials } = lidoEvents.WithdrawalCredentialsSet.decode(e);
+                await handleWithdrawalCredentialsSet(withdrawalCredentials, e, entityCache);
+                console.log(`Lido.handleWithdrawalCredentialsSet - End`);
             }
 
         }

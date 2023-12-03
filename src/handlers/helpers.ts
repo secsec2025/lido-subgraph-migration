@@ -1,4 +1,4 @@
-import {Holder, LidoConfig, LidoTransfer, Shares, Stats, TotalReward, Totals} from "../model";
+import {CurrentFees, Holder, LidoConfig, LidoTransfer, Shares, Stats, TotalReward, Totals} from "../model";
 import {
     CALCULATION_UNIT, E27_PRECISION_BASE,
     getAddress,
@@ -387,6 +387,20 @@ export async function _loadLidoConfig(entityCache: EntityCache): Promise<LidoCon
             withdrawalCredentials: ZERO_ADDRESS,
             wcSetBy: ZERO_ADDRESS,
             lidoLocator: ZERO_ADDRESS,
+        });
+    }
+    return entity;
+}
+
+export async function _loadCurrentFees(entityCache: EntityCache): Promise<CurrentFees> {
+    let entity = await entityCache.getCurrentFees('');
+    if (!entity) {
+        entity = new CurrentFees({
+            id: '',
+            treasuryFeeBasisPoints: 0n,
+            insuranceFeeBasisPoints: 0n,
+            operatorsFeeBasisPoints: 0n,
+            feeBasisPoints: 0n
         });
     }
     return entity;

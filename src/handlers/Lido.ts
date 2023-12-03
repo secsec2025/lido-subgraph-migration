@@ -1,6 +1,7 @@
 import {EntityCache} from "../entity-cache";
-import {LidoSubmission, LidoTransfer, NodeOperatorFees, SharesBurn} from "../model";
+import {LidoApproval, LidoSubmission, LidoTransfer, NodeOperatorFees, SharesBurn} from "../model";
 import {
+    _loadCurrentFees,
     _loadLidoConfig,
     _loadLidoTransferEntity,
     _loadSharesEntity, _loadTotalRewardEntity,
@@ -19,6 +20,7 @@ import {
 import {getAddress, LIDO_ADDRESS, ZERO_ADDRESS} from "../constants";
 import assert from "assert";
 import {mainHandleSharesBurnt} from "../main-handler";
+import {wcKeyCrops} from "./wcKeyCrops";
 
 export const handleSubmitted = async (sender: string, amount: bigint, referral: string, ctx: any, logEvent: any, entityCache: EntityCache) => {
 
@@ -445,4 +447,43 @@ export const handleStakingPaused = async (logEvent: any, entityCache: EntityCach
     const entity = await _loadLidoConfig(entityCache);
     entity.isStakingPaused = true;
     entityCache.saveLidoConfig(entity);
+}
+
+export const handleApproval = async (owner: string, spender: string, value: bigint, logEvent: any, entityCache: EntityCache) => {
+    let entity = new LidoApproval({
+       id: `${logEvent.transactionHash}${logEvent.logIndex}`,
+       owner: owner,
+       spender: spender,
+       value: value
+    });
+    entityCache.saveLidoApproval(entity);
+}
+
+export const handleFeeSet = async (feeBasisPoints: number, logEvent: any, entityCache: EntityCache) => {
+    const curFee = await _loadCurrentFees(entityCache);
+    curFee.feeBasisPoints = BigInt(feeBasisPoints);
+    entityCache.saveCurrentFees(curFee);
+}
+
+export const handleFeeDistributionSet = async (treasuryFeeBasisPoints: number, insuranceFeeBasisPoints: number, operatorsFeeBasisPoints: number, logEvent: any, entityCache: EntityCache) => {
+    const curFee = await _loadCurrentFees(entityCache);
+    curFee.treasuryFeeBasisPoints = BigInt(treasuryFeeBasisPoints);
+    curFee.insuranceFeeBasisPoints = BigInt(insuranceFeeBasisPoints);
+    curFee.operatorsFeeBasisPoints = BigInt(operatorsFeeBasisPoints);
+    entityCache.saveCurrentFees(curFee);
+}
+
+export const handleWithdrawalCredentialsSet = async (withdrawalCredentials: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.withdrawalCredentials = withdrawalCredentials;
+    entityCache.saveLidoConfig(entity);
+
+    // Cropping unused keys on withdrawal credentials change
+    /*if (wcKeyCrops.has(withdrawalCredentials)) {
+        const keys = wcKeyCrops.get(withdrawalCredentials);
+        if (!keys) return;
+        for (let i = 0; i < keys.length; i++) {
+            // store.remove('NodeOperatorSigningKey', keys[i])
+        }
+    }*/
 }
