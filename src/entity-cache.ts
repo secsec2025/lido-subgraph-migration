@@ -2,7 +2,7 @@ import {
     AppVersion, BeaconReport, CurrentFees, Holder, LidoApproval,
     LidoConfig,
     LidoSubmission,
-    LidoTransfer,
+    LidoTransfer, NodeOperator,
     NodeOperatorFees, NodeOperatorsShares, OracleCompleted, OracleConfig, OracleExpectedEpoch, OracleMember,
     Shares, SharesBurn, Stats,
     TotalReward,
@@ -20,6 +20,7 @@ export class EntityCache {
     public lidoSubmissions!: Map<string, LidoSubmission>;
     public lidoTransfers!: Map<string, LidoTransfer>;
     public totalRewards!: Map<string, TotalReward>;
+    public nodeOperators!: Map<string, NodeOperator>;
     public nodeOperatorFees!: Map<string, NodeOperatorFees>;
     public nodeOperatorsShares!: Map<string, NodeOperatorsShares>;
     public stats!: Map<string, Stats>;
@@ -48,6 +49,7 @@ export class EntityCache {
         this.lidoSubmissions = new Map<string, LidoSubmission>();
         this.lidoTransfers = new Map<string, LidoTransfer>();
         this.totalRewards = new Map<string, TotalReward>();
+        this.nodeOperators = new Map<string, NodeOperator>();
         this.nodeOperatorFees = new Map<string, NodeOperatorFees>();
         this.nodeOperatorsShares = new Map<string, NodeOperatorsShares>();
         this.stats = new Map<string, Stats>();
@@ -344,6 +346,20 @@ export class EntityCache {
         this.oracleMembers.set(ls.id, ls);
     }
 
+    getNodeOperator = async (id: string): Promise<NodeOperator | undefined> => {
+        // Check if entity exists in cache
+        if (this.nodeOperators.has(id)) return this.nodeOperators.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(NodeOperator, id);
+        if (a) this.nodeOperators.set(id, a);
+        return a;
+    }
+
+    saveNodeOperator = (ls: NodeOperator) => {
+        this.nodeOperators.set(ls.id, ls);
+    }
+
 
 
 
@@ -356,6 +372,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.lidoSubmissions.values()]);
         await this.ctx.store.upsert([...this.lidoTransfers.values()]);
         await this.ctx.store.upsert([...this.totalRewards.values()]);
+        await this.ctx.store.upsert([...this.nodeOperators.values()]);
         await this.ctx.store.upsert([...this.nodeOperatorFees.values()]);
         await this.ctx.store.upsert([...this.nodeOperatorsShares.values()]);
         await this.ctx.store.upsert([...this.stats.values()]);

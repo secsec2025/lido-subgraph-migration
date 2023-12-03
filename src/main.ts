@@ -1,9 +1,10 @@
 import {TypeormDatabase} from '@subsquid/typeorm-store'
 import {processor} from './processor'
-import {LEGACY_ORACLE_ADDRESS, LIDO_ADDRESS, LIDO_DAO_ADDRESS} from "./constants";
+import {LEGACY_ORACLE_ADDRESS, LIDO_ADDRESS, LIDO_DAO_ADDRESS, NODE_OPERATORS_REGISTRY_ADDRESS} from "./constants";
 
 import {events as lidoDAOEvents} from './abi/LidoDAO';
 import {events as lidoEvents} from './abi/Lido';
+import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
 
 import {handleSetApp} from './handlers/LidoDAO';
 
@@ -34,6 +35,7 @@ import {
     handleMemberRemoved,
     handlePostTotalShares, handleQuorumChanged
 } from "./handlers/LegacyOracle";
+import {handleNodeOperatorAdded} from "./handlers/NodeOperatorsRegistry";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -252,6 +254,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { value } = legacyOracleEvents.AllowedBeaconBalanceAnnualRelativeIncreaseSet.decode(e);
                 await handleAllowedBeaconBalanceAnnualRelativeIncreaseSet(value, e, entityCache);
                 console.log(`LegacyOracle.handleAllowedBeaconBalanceAnnualRelativeIncreaseSet - End`);
+            }
+
+            // NodeOperatorRegistry.handleNodeOperatorAdded
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorAdded.topic) {
+                console.log(`NodeOperatorRegistry.handleNodeOperatorAdded - Start`);
+                const { id, name, rewardAddress, stakingLimit } = nodeOperatorEvents.NodeOperatorAdded.decode(e);
+                await handleNodeOperatorAdded(id, name, rewardAddress.toLowerCase(), stakingLimit, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleNodeOperatorAdded - End`);
             }
 
         }
