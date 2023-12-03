@@ -225,7 +225,7 @@ export const handleCompleted = async (epochId: bigint, beaconBalance: bigint, be
     let sharesToOperatorsActual = 0n;
 
     for (let i = 0; i < opAddresses.length; i++) {
-        const addr = opAddresses[i];
+        const addr = opAddresses[i].toLowerCase();
         const shares = opShares[i];
 
         // Incrementing total of actual shares distributed
