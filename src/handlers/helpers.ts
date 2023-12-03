@@ -1,4 +1,14 @@
-import {CurrentFees, Holder, LidoConfig, LidoTransfer, Shares, Stats, TotalReward, Totals} from "../model";
+import {
+    CurrentFees,
+    Holder,
+    LidoConfig,
+    LidoTransfer,
+    OracleConfig,
+    Shares,
+    Stats,
+    TotalReward,
+    Totals
+} from "../model";
 import {
     CALCULATION_UNIT, E27_PRECISION_BASE,
     getAddress,
@@ -404,6 +414,58 @@ export async function _loadCurrentFees(entityCache: EntityCache): Promise<Curren
         });
     }
     return entity;
+}
+
+export async function _loadOracleConfig(entityCache: EntityCache): Promise<OracleConfig> {
+    let entity = await entityCache.getOracleConfig('');
+    if (!entity) {
+        entity = new OracleConfig({
+            id: '',
+            quorum: 0n,
+            contractVersion: 0n,
+            allowedBeaconBalanceAnnualRelativeIncrease: 0n,
+            allowedBeaconBalanceRelativeDecrease: 0n,
+            epochsPerFrame: 0n,
+            slotsPerEpoch: 0n,
+            secondsPerSlot: 0n,
+            genesisTime: 0n,
+            beaconReportReceiver: ZERO_ADDRESS
+        });
+    }
+    return entity;
+}
+
+
+export function _calcAPR_v1(entity: TotalReward, preTotalPooledEther: bigint, postTotalPooledEther: bigint, timeElapsed: bigint, feeBasis: bigint): void {
+    // Lido v1 deprecated approach
+    /**
+     aprRaw -> aprBeforeFees -> apr
+
+     aprRaw - APR straight from validator balances without adjustments
+     aprBeforeFees - APR compensated for time difference between oracle reports
+     apr - Time-compensated APR with fees subtracted
+     **/
+
+    // APR without subtracting fees and without any compensations
+    entity.aprRaw = BigDecimal(postTotalPooledEther).div(preTotalPooledEther).minus(1)
+        .times(100)
+        .times(365);
+
+    // Time-compensated APR
+    // (postTotalPooledEther - preTotalPooledEther) * secondsInYear / (preTotalPooledEther * timeElapsed)
+    entity.aprBeforeFees = timeElapsed === 0n
+        ? entity.aprRaw
+        : BigDecimal((postTotalPooledEther - preTotalPooledEther) * SECONDS_PER_YEAR)
+            .div(preTotalPooledEther * timeElapsed)
+            .times(100);
+
+    // Subtracting fees
+    entity.apr = entity.aprBeforeFees.minus(
+        entity.aprBeforeFees
+            .times(CALCULATION_UNIT)
+            .div(feeBasis)
+            .div(100)
+    );
 }
 
 

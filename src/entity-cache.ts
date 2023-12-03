@@ -1,9 +1,9 @@
 import {
-    AppVersion, CurrentFees, Holder, LidoApproval,
+    AppVersion, BeaconReport, CurrentFees, Holder, LidoApproval,
     LidoConfig,
     LidoSubmission,
     LidoTransfer,
-    NodeOperatorFees, NodeOperatorsShares,
+    NodeOperatorFees, NodeOperatorsShares, OracleCompleted, OracleConfig, OracleExpectedEpoch,
     Shares, SharesBurn, Stats,
     TotalReward,
     Totals
@@ -27,6 +27,10 @@ export class EntityCache {
     public sharesBurn!: Map<string, SharesBurn>;
     public lidoApprovals!: Map<string, LidoApproval>;
     public currentFees!: Map<string, CurrentFees>;
+    public oracleCompleted!: Map<string, OracleCompleted>;
+    public oracleConfig!: Map<string, OracleConfig>;
+    public oracleExpectedEpoch!: Map<string, OracleExpectedEpoch>;
+    public beaconReports!: Map<string, BeaconReport>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -50,6 +54,10 @@ export class EntityCache {
         this.sharesBurn = new Map<string, SharesBurn>();
         this.lidoApprovals = new Map<string, LidoApproval>();
         this.currentFees = new Map<string, CurrentFees>();
+        this.oracleCompleted = new Map<string, OracleCompleted>();
+        this.oracleConfig = new Map<string, OracleConfig>();
+        this.oracleExpectedEpoch = new Map<string, OracleExpectedEpoch>();
+        this.beaconReports = new Map<string, BeaconReport>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -264,12 +272,69 @@ export class EntityCache {
         this.currentFees.set(ls.id, ls);
     }
 
+    getOracleCompleted = async (id: string): Promise<OracleCompleted | undefined> => {
+        // Check if entity exists in cache
+        if (this.oracleCompleted.has(id)) return this.oracleCompleted.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(OracleCompleted, id);
+        if (a) this.oracleCompleted.set(id, a);
+        return a;
+    }
+
+    saveOracleCompleted = (ls: OracleCompleted) => {
+        this.oracleCompleted.set(ls.id, ls);
+    }
+
+    getOracleConfig = async (id: string): Promise<OracleConfig | undefined> => {
+        // Check if entity exists in cache
+        if (this.oracleConfig.has(id)) return this.oracleConfig.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(OracleConfig, id);
+        if (a) this.oracleConfig.set(id, a);
+        return a;
+    }
+
+    saveOracleConfig = (ls: OracleConfig) => {
+        this.oracleConfig.set(ls.id, ls);
+    }
+
+    getOracleExpectedEpoch = async (id: string): Promise<OracleExpectedEpoch | undefined> => {
+        // Check if entity exists in cache
+        if (this.oracleExpectedEpoch.has(id)) return this.oracleExpectedEpoch.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(OracleExpectedEpoch, id);
+        if (a) this.oracleExpectedEpoch.set(id, a);
+        return a;
+    }
+
+    saveOracleExpectedEpoch = (ls: OracleExpectedEpoch) => {
+        this.oracleExpectedEpoch.set(ls.id, ls);
+    }
+
+    getBeaconReport = async (id: string): Promise<BeaconReport | undefined> => {
+        // Check if entity exists in cache
+        if (this.beaconReports.has(id)) return this.beaconReports.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(BeaconReport, id);
+        if (a) this.beaconReports.set(id, a);
+        return a;
+    }
+
+    saveBeaconReport = (ls: BeaconReport) => {
+        this.beaconReports.set(ls.id, ls);
+    }
+
 
 
 
     // Persist Cache to DB
     persistCacheToDatabase = async (flushCache: boolean) => {
         await this.ctx.store.upsert([...this.appVersions.values()]);
+        await this.ctx.store.upsert([...this.lidoConfigs.values()]);
         await this.ctx.store.upsert([...this.totals.values()]);
         await this.ctx.store.upsert([...this.shares.values()]);
         await this.ctx.store.upsert([...this.lidoSubmissions.values()]);
@@ -282,6 +347,10 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.sharesBurn.values()]);
         await this.ctx.store.upsert([...this.lidoApprovals.values()]);
         await this.ctx.store.upsert([...this.currentFees.values()]);
+        await this.ctx.store.upsert([...this.oracleCompleted.values()]);
+        await this.ctx.store.upsert([...this.oracleConfig.values()]);
+        await this.ctx.store.upsert([...this.oracleExpectedEpoch.values()]);
+        await this.ctx.store.upsert([...this.beaconReports.values()]);
 
         if (flushCache) {
             this.initializeMaps();

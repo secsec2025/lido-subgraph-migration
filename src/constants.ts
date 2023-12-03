@@ -8,6 +8,8 @@ export const LIDO_DAO_ADDRESS: string = '0xb8FFC3Cd6e7Cf5a098A1c92F48009765B2408
 
 export const LIDO_ADDRESS: string = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'.toLowerCase();
 
+export const LEGACY_ORACLE_ADDRESS: string = '0x442af784A788A5bd6F42A01Ebe9F287a871243fb'.toLowerCase();
+
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000';
 
@@ -25,6 +27,13 @@ export const E27_PRECISION_BASE = BigDecimal('1000000000000000000000000000');
 
 // 1 ETH in WEI
 export const ETHER = BigInt('1000000000000000000');
+
+/**
+ Deposits
+ **/
+
+export const DEPOSIT_SIZE = BigInt(32);
+export const DEPOSIT_AMOUNT = DEPOSIT_SIZE * ETHER; // in Wei
 
 
 /**

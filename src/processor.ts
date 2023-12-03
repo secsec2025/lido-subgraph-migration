@@ -2,10 +2,11 @@ import {lookupArchive} from '@subsquid/archive-registry';
 import {
     EvmBatchProcessor
 } from '@subsquid/evm-processor';
-import {LIDO_ADDRESS, LIDO_DAO_ADDRESS} from "./constants";
+import {LEGACY_ORACLE_ADDRESS, LIDO_ADDRESS, LIDO_DAO_ADDRESS} from "./constants";
 
 import {events as lidoDAOEvents} from './abi/LidoDAO';
 import {events as lidoEvents} from './abi/Lido';
+import {events as legacyOracleEvents} from './abi/LegacyOracle';
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
@@ -29,8 +30,14 @@ export const processor = new EvmBatchProcessor()
             lidoEvents.StakingLimitRemoved.topic, lidoEvents.StakingLimitSet.topic, lidoEvents.StakingResumed.topic,
             lidoEvents.StakingPaused.topic, lidoEvents.Approval.topic, lidoEvents.FeeSet.topic, lidoEvents.FeeDistributionSet.topic,
             lidoEvents.WithdrawalCredentialsSet.topic, lidoEvents.ProtocolContactsSet.topic, lidoEvents.ELRewardsWithdrawalLimitSet.topic,
-            lidoEvents.ELRewardsVaultSet.topic, lidoEvents.BeaconValidatorsUpdated.topic],
+            lidoEvents.ELRewardsVaultSet.topic, lidoEvents.BeaconValidatorsUpdated.topic,
+            lidoEvents.ELRewardsReceived.topic, lidoEvents.MevTxFeeReceived.topic],
         range: {from: 11473216},
+    }).addLog({
+        address: [LEGACY_ORACLE_ADDRESS],
+        topic0: [legacyOracleEvents.Completed.topic, legacyOracleEvents.PostTotalShares.topic],
+        range: {from: 11473216},
+        transaction: true
     }).setFields({
         log: {
             address: true,
