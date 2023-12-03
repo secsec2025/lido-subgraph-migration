@@ -9,9 +9,9 @@ import {handleSetApp} from './handlers/LidoDAO';
 
 import {EntityCache} from './entity-cache';
 import {
-    handleApproval,
+    handleApproval, handleBeaconValidatorsUpdated, handleELRewardsVaultSet, handleELRewardsWithdrawalLimitSet,
     handleETHDistributed, handleFeeDistributionSet, handleFeeSet,
-    handleLidoLocatorSet,
+    handleLidoLocatorSet, handleProtocolContractsSet,
     handleResumed,
     handleStakingLimitRemoved,
     handleStakingLimitSet,
@@ -144,6 +144,38 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { withdrawalCredentials } = lidoEvents.WithdrawalCredentialsSet.decode(e);
                 await handleWithdrawalCredentialsSet(withdrawalCredentials, e, entityCache);
                 console.log(`Lido.handleWithdrawalCredentialsSet - End`);
+            }
+
+            // Lido.handleProtocolContractsSet
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.ProtocolContactsSet.topic) {
+                console.log(`Lido.handleProtocolContractsSet - Start`);
+                const { oracle, treasury, insuranceFund } = lidoEvents.ProtocolContactsSet.decode(e);
+                await handleProtocolContractsSet(oracle.toLowerCase(), treasury.toLowerCase(), insuranceFund.toLowerCase(), e, entityCache);
+                console.log(`Lido.handleProtocolContractsSet - End`);
+            }
+
+            // Lido.handleELRewardsWithdrawalLimitSet
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.ELRewardsWithdrawalLimitSet.topic) {
+                console.log(`Lido.handleELRewardsWithdrawalLimitSet - Start`);
+                const { limitPoints } = lidoEvents.ELRewardsWithdrawalLimitSet.decode(e);
+                await handleELRewardsWithdrawalLimitSet(limitPoints, e, entityCache);
+                console.log(`Lido.handleELRewardsWithdrawalLimitSet - End`);
+            }
+
+            // Lido.handleELRewardsVaultSet
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.ELRewardsVaultSet.topic) {
+                console.log(`Lido.handleELRewardsVaultSet - Start`);
+                const { executionLayerRewardsVault } = lidoEvents.ELRewardsVaultSet.decode(e);
+                await handleELRewardsVaultSet(executionLayerRewardsVault.toLowerCase(), e, entityCache);
+                console.log(`Lido.handleELRewardsVaultSet - End`);
+            }
+
+            // Lido.handleBeaconValidatorsUpdated
+            else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.BeaconValidatorsUpdated.topic) {
+                console.log(`Lido.handleBeaconValidatorsUpdated - Start`);
+                const { beaconValidators } = lidoEvents.BeaconValidatorsUpdated.decode(e);
+                await handleBeaconValidatorsUpdated(beaconValidators, ctx, e, entityCache);
+                console.log(`Lido.handleBeaconValidatorsUpdated - End`);
             }
 
         }

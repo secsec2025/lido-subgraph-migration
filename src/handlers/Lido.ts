@@ -21,6 +21,7 @@ import {getAddress, LIDO_ADDRESS, ZERO_ADDRESS} from "../constants";
 import assert from "assert";
 import {mainHandleSharesBurnt} from "../main-handler";
 import {wcKeyCrops} from "./wcKeyCrops";
+import {getTotalPooledEtherFromLidoContract} from "../helpers/contract-helper";
 
 export const handleSubmitted = async (sender: string, amount: bigint, referral: string, ctx: any, logEvent: any, entityCache: EntityCache) => {
 
@@ -487,3 +488,34 @@ export const handleWithdrawalCredentialsSet = async (withdrawalCredentials: stri
         }
     }*/
 }
+
+export const handleProtocolContractsSet = async (oracle: string, treasury: string, insuranceFund: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.insuranceFund = insuranceFund;
+    entity.oracle = oracle;
+    entity.treasury = treasury;
+    entityCache.saveLidoConfig(entity);
+}
+
+
+export const handleELRewardsWithdrawalLimitSet = async (limitPoints: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.elRewardsWithdrawalLimitPoints = limitPoints;
+    entityCache.saveLidoConfig(entity);
+}
+
+export const handleELRewardsVaultSet = async (executionLayerRewardsVault: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadLidoConfig(entityCache);
+    entity.elRewardsVault = executionLayerRewardsVault;
+    entityCache.saveLidoConfig(entity);
+}
+
+export const handleBeaconValidatorsUpdated = async (beaconValidators: bigint, ctx: any, logEvent: any, entityCache: EntityCache) => {
+    // Totals entity should exist
+    const totals = await _loadTotalsEntity(false, entityCache);
+    if (!totals) return;
+    // Just grab the correct value from the contract
+    totals.totalPooledEther = await getTotalPooledEtherFromLidoContract(logEvent.address, ctx, logEvent);
+    entityCache.saveTotals(totals);
+}
+

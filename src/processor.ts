@@ -28,7 +28,8 @@ export const processor = new EvmBatchProcessor()
         topic0: [lidoEvents.LidoLocatorSet.topic, lidoEvents.Stopped.topic, lidoEvents.Resumed.topic,
             lidoEvents.StakingLimitRemoved.topic, lidoEvents.StakingLimitSet.topic, lidoEvents.StakingResumed.topic,
             lidoEvents.StakingPaused.topic, lidoEvents.Approval.topic, lidoEvents.FeeSet.topic, lidoEvents.FeeDistributionSet.topic,
-            lidoEvents.WithdrawalCredentialsSet.topic],
+            lidoEvents.WithdrawalCredentialsSet.topic, lidoEvents.ProtocolContactsSet.topic, lidoEvents.ELRewardsWithdrawalLimitSet.topic,
+            lidoEvents.ELRewardsVaultSet.topic, lidoEvents.BeaconValidatorsUpdated.topic],
         range: {from: 11473216},
     }).setFields({
         log: {
