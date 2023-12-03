@@ -4,7 +4,7 @@ import {
     LidoSubmission,
     LidoTransfer,
     NodeOperatorFees, NodeOperatorsShares,
-    Shares, Stats,
+    Shares, SharesBurn, Stats,
     TotalReward,
     Totals
 } from "./model";
@@ -24,6 +24,7 @@ export class EntityCache {
     public nodeOperatorsShares!: Map<string, NodeOperatorsShares>;
     public stats!: Map<string, Stats>;
     public holders!: Map<string, Holder>;
+    public sharesBurn!: Map<string, SharesBurn>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -44,6 +45,7 @@ export class EntityCache {
         this.nodeOperatorsShares = new Map<string, NodeOperatorsShares>();
         this.stats = new Map<string, Stats>();
         this.holders = new Map<string, Holder>();
+        this.sharesBurn = new Map<string, SharesBurn>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -216,6 +218,20 @@ export class EntityCache {
         this.holders.set(ls.id, ls);
     }
 
+    getSharesBurn = async (id: string): Promise<SharesBurn | undefined> => {
+        // Check if entity exists in cache
+        if (this.sharesBurn.has(id)) return this.sharesBurn.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(SharesBurn, id);
+        if (a) this.sharesBurn.set(id, a);
+        return a;
+    }
+
+    saveSharesBurn = (ls: SharesBurn) => {
+        this.sharesBurn.set(ls.id, ls);
+    }
+
 
 
 
@@ -231,6 +247,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.nodeOperatorsShares.values()]);
         await this.ctx.store.upsert([...this.stats.values()]);
         await this.ctx.store.upsert([...this.holders.values()]);
+        await this.ctx.store.upsert([...this.sharesBurn.values()]);
 
         if (flushCache) {
             this.initializeMaps();

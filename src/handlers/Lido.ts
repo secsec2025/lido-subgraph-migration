@@ -1,5 +1,5 @@
 import {EntityCache} from "../entity-cache";
-import {LidoSubmission, NodeOperatorFees} from "../model";
+import {LidoSubmission, LidoTransfer, NodeOperatorFees, SharesBurn} from "../model";
 import {
     _loadLidoTransferEntity,
     _loadSharesEntity,
@@ -274,4 +274,59 @@ export const handleTransfer = async (from: string, to: string, value: bigint, lo
     _updateTransferBalances(entity);
     await _updateHolders(entity, entityCache);
     entityCache.saveLidoTransfer(entity);
+}
+
+
+export const handleSharesBurnt = async (account: string,preRebaseTokenAmount: bigint, postRebaseTokenAmount: bigint, sharesAmount: bigint, logEvent: any, entityCache: EntityCache) => {
+    // shares are burned only during oracle report from LidoBurner contract
+    const id = `${logEvent.transactionHash}${logEvent.logIndex}`;
+    let entity = await entityCache.getSharesBurn(id);
+    // process totals only if entity not yet exists, i.e. not yet handled before
+    if (!!entity) return;
+
+    entity = new SharesBurn({
+        id: id,
+        account: account,
+        postRebaseTokenAmount: postRebaseTokenAmount,
+        preRebaseTokenAmount: preRebaseTokenAmount,
+        sharesAmount: sharesAmount
+    });
+    entityCache.saveSharesBurn(entity);
+
+    // Totals should be already non-null here
+    const totals = await _loadTotalsEntity(false, entityCache);
+    if (!totals) return;
+    totals.totalShares = totals.totalShares - sharesAmount;
+    assert(totals.totalShares >= 0n, 'negative totalShares after shares burn')
+    entityCache.saveTotals(totals);
+
+    // create Transfer event
+    const txEntity = new LidoTransfer({
+        id: id,
+        from: account,
+        to: ZERO_ADDRESS,
+        block: BigInt(logEvent.block.height),
+        blockTime: BigInt(logEvent.block.timestamp),
+        transactionHash: logEvent.transactionHash,
+        transactionIndex: BigInt(logEvent.transactionIndex),
+        logIndex: BigInt(logEvent.logIndex),
+        value: postRebaseTokenAmount,
+        shares: sharesAmount,
+        totalPooledEther: totals.totalPooledEther,
+        totalShares: totals.totalShares,
+        sharesBeforeDecrease: 0n,
+        sharesAfterDecrease: 0n,
+        balanceAfterDecrease: 0n,
+        sharesBeforeIncrease: 0n,
+        sharesAfterIncrease: 0n,
+        balanceAfterIncrease: 0n
+    });
+
+    // upd account's shares and stats
+    await _updateTransferShares(txEntity, entityCache);
+    _updateTransferBalances(txEntity);
+    await _updateHolders(txEntity, entityCache);
+
+    entityCache.saveLidoTransfer(txEntity);
+
 }
