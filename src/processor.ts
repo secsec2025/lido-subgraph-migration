@@ -57,7 +57,9 @@ export const processor = new EvmBatchProcessor()
         address: [NODE_OPERATORS_REGISTRY_ADDRESS],
         topic0: [nodeOperatorEvents.NodeOperatorAdded.topic, nodeOperatorEvents.NodeOperatorActiveSet.topic,
             nodeOperatorEvents.NodeOperatorNameSet.topic, nodeOperatorEvents.NodeOperatorRewardAddressSet.topic,
-            nodeOperatorEvents.SigningKeyAdded.topic],
+            nodeOperatorEvents.SigningKeyAdded.topic, nodeOperatorEvents.SigningKeyRemoved.topic,
+            nodeOperatorEvents.NodeOperatorTotalKeysTrimmed.topic, nodeOperatorEvents.KeysOpIndexSet.topic,
+            nodeOperatorEvents.NodeOperatorStakingLimitSet.topic, nodeOperatorEvents.NodeOperatorTotalStoppedValidatorsReported.topic],
         range: {from: 11473216}
     }).addLog({
         address: [LIDO_VOTING_ADDRESS],

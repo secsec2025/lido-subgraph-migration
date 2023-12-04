@@ -43,9 +43,14 @@ import {
     handlePostTotalShares, handleQuorumChanged
 } from "./handlers/LegacyOracle";
 import {
+    handleKeysOpIndexSet,
     handleNodeOperatorActiveSet,
     handleNodeOperatorAdded,
-    handleNodeOperatorNameSet, handleNodeOperatorRewardAddressSet, handleSigningKeyAdded
+    handleNodeOperatorNameSet,
+    handleNodeOperatorRewardAddressSet, handleNodeOperatorStakingLimitSet,
+    handleNodeOperatorTotalKeysTrimmed, handleNodeOperatorTotalStoppedValidatorsReported,
+    handleSigningKeyAdded,
+    handleSigningKeyRemoved
 } from "./handlers/NodeOperatorsRegistry";
 import {
     handleCastObjection,
@@ -302,6 +307,46 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { operatorId, pubkey } = nodeOperatorEvents.SigningKeyAdded.decode(e);
                 await handleSigningKeyAdded(operatorId, pubkey, e, entityCache);
                 console.log(`NodeOperatorRegistry.handleSigningKeyAdded - End`);
+            }
+
+            // NodeOperatorRegistry.handleSigningKeyRemoved
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.SigningKeyRemoved.topic) {
+                console.log(`NodeOperatorRegistry.handleSigningKeyRemoved - Start`);
+                const { operatorId, pubkey } = nodeOperatorEvents.SigningKeyRemoved.decode(e);
+                await handleSigningKeyRemoved(operatorId, pubkey, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleSigningKeyRemoved - End`);
+            }
+
+            // NodeOperatorRegistry.handleNodeOperatorTotalKeysTrimmed
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorTotalKeysTrimmed.topic) {
+                console.log(`NodeOperatorRegistry.handleNodeOperatorTotalKeysTrimmed - Start`);
+                const { id, totalKeysTrimmed } = nodeOperatorEvents.NodeOperatorTotalKeysTrimmed.decode(e);
+                await handleNodeOperatorTotalKeysTrimmed(id, totalKeysTrimmed, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleNodeOperatorTotalKeysTrimmed - End`);
+            }
+
+            // NodeOperatorRegistry.handleKeysOpIndexSet
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.KeysOpIndexSet.topic) {
+                console.log(`NodeOperatorRegistry.handleKeysOpIndexSet - Start`);
+                const { keysOpIndex } = nodeOperatorEvents.KeysOpIndexSet.decode(e);
+                await handleKeysOpIndexSet(keysOpIndex, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleKeysOpIndexSet - End`);
+            }
+
+            // NodeOperatorRegistry.handleNodeOperatorStakingLimitSet
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorStakingLimitSet.topic) {
+                console.log(`NodeOperatorRegistry.handleNodeOperatorStakingLimitSet - Start`);
+                const { id, stakingLimit } = nodeOperatorEvents.NodeOperatorStakingLimitSet.decode(e);
+                await handleNodeOperatorStakingLimitSet(id, stakingLimit, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleNodeOperatorStakingLimitSet - End`);
+            }
+
+            // NodeOperatorRegistry.handleNodeOperatorTotalStoppedValidatorsReported
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorTotalStoppedValidatorsReported.topic) {
+                console.log(`NodeOperatorRegistry.handleNodeOperatorTotalStoppedValidatorsReported - Start`);
+                const { id, totalStopped } = nodeOperatorEvents.NodeOperatorTotalStoppedValidatorsReported.decode(e);
+                await handleNodeOperatorTotalStoppedValidatorsReported(id, totalStopped, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleNodeOperatorTotalStoppedValidatorsReported - End`);
             }
 
             // Voting.handleStartVote

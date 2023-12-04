@@ -8,7 +8,7 @@ import {
     LidoSubmission,
     LidoTransfer,
     NodeOperator,
-    NodeOperatorFees,
+    NodeOperatorFees, NodeOperatorKeysOpIndex,
     NodeOperatorSigningKey,
     NodeOperatorsShares,
     OracleCompleted,
@@ -55,6 +55,7 @@ export class EntityCache {
     public votingObjections!: Map<string, VotingObjection>;
     public votingConfig!: Map<string, VotingConfig>;
     public nodeOperatorSigningKeys!: Map<string, NodeOperatorSigningKey>;
+    public nodeOperatorKeysOpIndex!: Map<string, NodeOperatorKeysOpIndex>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -89,6 +90,7 @@ export class EntityCache {
         this.votingObjections = new Map<string, VotingObjection>();
         this.votingConfig = new Map<string, VotingConfig>();
         this.nodeOperatorSigningKeys = new Map<string, NodeOperatorSigningKey>();
+        this.nodeOperatorKeysOpIndex = new Map<string, NodeOperatorKeysOpIndex>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -457,6 +459,20 @@ export class EntityCache {
         this.nodeOperatorSigningKeys.set(ls.id, ls);
     }
 
+    getNodeOperatorKeysOpIndex = async (id: string): Promise<NodeOperatorKeysOpIndex | undefined> => {
+        // Check if entity exists in cache
+        if (this.nodeOperatorKeysOpIndex.has(id)) return this.nodeOperatorKeysOpIndex.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(NodeOperatorKeysOpIndex, id);
+        if (a) this.nodeOperatorKeysOpIndex.set(id, a);
+        return a;
+    }
+
+    saveNodeOperatorKeysOpIndex = (ls: NodeOperatorKeysOpIndex) => {
+        this.nodeOperatorKeysOpIndex.set(ls.id, ls);
+    }
+
 
 
 
@@ -487,6 +503,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.votingObjections.values()]);
         await this.ctx.store.upsert([...this.votingConfig.values()]);
         await this.ctx.store.upsert([...this.nodeOperatorSigningKeys.values()]);
+        await this.ctx.store.upsert([...this.nodeOperatorKeysOpIndex.values()]);
 
         if (flushCache) {
             this.initializeMaps();

@@ -1,5 +1,5 @@
 import {EntityCache} from "../entity-cache";
-import {NodeOperator, NodeOperatorSigningKey} from "../model";
+import {NodeOperator, NodeOperatorKeysOpIndex, NodeOperatorSigningKey} from "../model";
 import {ZERO_ADDRESS} from "../constants";
 import assert from "assert";
 
@@ -54,6 +54,58 @@ export const handleSigningKeyAdded = async (operatorId: bigint, pubkey: string, 
         logIndex: BigInt(logEvent.logIndex)
     });
     entityCache.saveNodeOperatorSigningKey(entity);
+}
+
+export const handleSigningKeyRemoved = async (operatorId: bigint, pubkey: string, logEvent: any, entityCache: EntityCache) => {
+    const noEntity = await _loadOperator(operatorId.toString(), false, entityCache);
+    assert(noEntity, `Undefined Node operator for ID - ${operatorId} at ${logEvent.transactionHash}`);
+
+    let entity = await entityCache.getNodeOperatorSigningKey(pubkey);
+    if (!entity) {
+        entity = new NodeOperatorSigningKey({
+            id: pubkey,
+            operatorId: operatorId,
+            pubkey: pubkey,
+            opidfk: operatorId.toString()
+        });
+    }
+
+    entity.block = BigInt(logEvent.block.height);
+    entity.blockTime = BigInt(logEvent.block.timestamp);
+    entity.transactionHash = logEvent.transactionHash;
+    entity.logIndex = BigInt(logEvent.logIndex);
+    entity.removed = true;
+
+    entityCache.saveNodeOperatorSigningKey(entity);
+}
+
+export const handleNodeOperatorTotalKeysTrimmed = async (id: bigint, totalKeysTrimmed: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOperator(id.toString(), false, entityCache);
+    assert(entity, `Undefined Node operator for ID - ${id} at ${logEvent.transactionHash}`);
+    entity.totalKeysTrimmed = totalKeysTrimmed;
+    entityCache.saveNodeOperator(entity);
+}
+
+export const handleKeysOpIndexSet = async (keysOpIndex: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = new NodeOperatorKeysOpIndex({
+        id: `${logEvent.transactionHash}${logEvent.logIndex}`,
+        index: keysOpIndex
+    });
+    entityCache.saveNodeOperatorKeysOpIndex(entity);
+}
+
+export const handleNodeOperatorStakingLimitSet = async (id: bigint, stakingLimit: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOperator(id.toString(), false, entityCache);
+    assert(entity, `Undefined Node operator for ID - ${id} at ${logEvent.transactionHash}`);
+    entity.stakingLimit = stakingLimit;
+    entityCache.saveNodeOperator(entity);
+}
+
+export const handleNodeOperatorTotalStoppedValidatorsReported = async (id: bigint, totalStopped: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadOperator(id.toString(), false, entityCache);
+    assert(entity, `Undefined Node operator for ID - ${id} at ${logEvent.transactionHash}`);
+    entity.totalStoppedValidators = totalStopped;
+    entityCache.saveNodeOperator(entity);
 }
 
 
