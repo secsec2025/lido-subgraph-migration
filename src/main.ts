@@ -3,7 +3,7 @@ import {processor} from './processor'
 import {
     LEGACY_ORACLE_ADDRESS, LIDO_ACCOUNTING_ORACLE_ADDRESS,
     LIDO_ADDRESS,
-    LIDO_DAO_ADDRESS, LIDO_HASH_CONSENSUS_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
+    LIDO_DAO_ADDRESS, LIDO_EASY_TRACK_ADDRESS, LIDO_HASH_CONSENSUS_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
     LIDO_VOTING_ADDRESS, LIDO_WITHDRAWAL_QUEUE_ADDRESS,
     NODE_OPERATORS_REGISTRY_ADDRESS
 } from "./constants";
@@ -12,6 +12,7 @@ import {events as lidoDAOEvents} from './abi/LidoDAO';
 import {events as lidoEvents} from './abi/Lido';
 import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
 import {events as votingEvents} from './abi/Voting';
+import {events as easyTrackEvents} from './abi/EasyTrack';
 import {events as stakingRouterEvents} from './abi/StakingRouter';
 import {events as accountingOracleEvents} from './abi/AccountingOracle';
 import {events as withdrawalQueueEvents} from './abi/WithdrawalQueue';
@@ -74,6 +75,7 @@ import {
     handleWithdrawalClaimed, handleWithdrawalRequested, handleWithdrawalsFinalized
 } from "./handlers/WithdrawalQueue";
 import {handleFrameConfigSet} from "./handlers/HashConsensus";
+import {handleEVMScriptExecutorChanged, handleEVMScriptFactoryAdded} from "./handlers/EasyTrack";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -394,6 +396,22 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
             else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ChangeObjectionPhaseTime.topic) {
                 const { objectionPhaseTime } = votingEvents.ChangeObjectionPhaseTime.decode(e);
                 await handleChangeObjectionPhaseTime(objectionPhaseTime, e, entityCache);
+            }
+
+            // EasyTrack.handleEVMScriptExecutorChanged
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.EVMScriptExecutorChanged.topic) {
+                console.log(`EasyTrack.handleEVMScriptExecutorChanged - Start`);
+                const { _evmScriptExecutor } = easyTrackEvents.EVMScriptExecutorChanged.decode(e);
+                await handleEVMScriptExecutorChanged(_evmScriptExecutor.toLowerCase(), e, entityCache);
+                console.log(`EasyTrack.handleEVMScriptExecutorChanged - End`);
+            }
+
+            // EasyTrack.handleEVMScriptFactoryAdded
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.EVMScriptFactoryAdded.topic) {
+                console.log(`EasyTrack.handleEVMScriptFactoryAdded - Start`);
+                const { _evmScriptFactory, _permissions } = easyTrackEvents.EVMScriptFactoryAdded.decode(e);
+                await handleEVMScriptFactoryAdded(_evmScriptFactory.toLowerCase(), _permissions, e, entityCache);
+                console.log(`EasyTrack.handleEVMScriptFactoryAdded - End`);
             }
 
             // StakingRouter.handleWithdrawalCredentialsSet

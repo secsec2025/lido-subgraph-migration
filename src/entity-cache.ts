@@ -1,7 +1,7 @@
 import {
     AppVersion,
     BeaconReport,
-    CurrentFees,
+    CurrentFees, EasyTrackConfig, EVMScriptFactory,
     Holder,
     LidoApproval,
     LidoConfig,
@@ -61,6 +61,8 @@ export class EntityCache {
     public withdrawalClaims!: Map<string, WithdrawalClaimed>;
     public withdrawalRequests!: Map<string, WithdrawalRequested>;
     public withdrawalFinalized!: Map<string, WithdrawalsFinalized>;
+    public easyTrackConfig!: Map<string, EasyTrackConfig>;
+    public evmScriptFactory!: Map<string, EVMScriptFactory>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -101,6 +103,8 @@ export class EntityCache {
         this.withdrawalClaims = new Map<string, WithdrawalClaimed>();
         this.withdrawalRequests = new Map<string, WithdrawalRequested>();
         this.withdrawalFinalized = new Map<string, WithdrawalsFinalized>();
+        this.easyTrackConfig = new Map<string, EasyTrackConfig>();
+        this.evmScriptFactory = new Map<string, EVMScriptFactory>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -553,6 +557,34 @@ export class EntityCache {
         this.withdrawalFinalized.set(ls.id, ls);
     }
 
+    getEasyTrackConfig = async (id: string): Promise<EasyTrackConfig | undefined> => {
+        // Check if entity exists in cache
+        if (this.easyTrackConfig.has(id)) return this.easyTrackConfig.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(EasyTrackConfig, id);
+        if (a) this.easyTrackConfig.set(id, a);
+        return a;
+    }
+
+    saveEasyTrackConfig = (ls: EasyTrackConfig) => {
+        this.easyTrackConfig.set(ls.id, ls);
+    }
+
+    getEVMScriptFactory = async (id: string): Promise<EVMScriptFactory | undefined> => {
+        // Check if entity exists in cache
+        if (this.evmScriptFactory.has(id)) return this.evmScriptFactory.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(EVMScriptFactory, id);
+        if (a) this.evmScriptFactory.set(id, a);
+        return a;
+    }
+
+    saveEVMScriptFactory = (ls: EVMScriptFactory) => {
+        this.evmScriptFactory.set(ls.id, ls);
+    }
+
 
 
 
@@ -589,6 +621,8 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.withdrawalClaims.values()]);
         await this.ctx.store.upsert([...this.withdrawalRequests.values()]);
         await this.ctx.store.upsert([...this.withdrawalFinalized.values()]);
+        await this.ctx.store.upsert([...this.easyTrackConfig.values()]);
+        await this.ctx.store.upsert([...this.evmScriptFactory.values()]);
 
         if (flushCache) {
             this.initializeMaps();
