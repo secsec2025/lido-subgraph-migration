@@ -60,7 +60,8 @@ export const processor = new EvmBatchProcessor()
     }).addLog({
         address: [LIDO_VOTING_ADDRESS],
         topic0: [votingEvents.StartVote.topic, votingEvents.CastVote.topic, votingEvents.CastObjection.topic,
-            votingEvents.ExecuteVote.topic],
+            votingEvents.ExecuteVote.topic, votingEvents.ChangeSupportRequired.topic, votingEvents.ChangeMinQuorum.topic,
+            votingEvents.ChangeVoteTime.topic, votingEvents.ChangeObjectionPhaseTime.topic],
         range: {from: 11473216}
     }).setFields({
         log: {

@@ -43,7 +43,13 @@ import {
     handlePostTotalShares, handleQuorumChanged
 } from "./handlers/LegacyOracle";
 import {handleNodeOperatorAdded} from "./handlers/NodeOperatorsRegistry";
-import {handleCastObjection, handleCastVote, handleExecuteVote, handleStartVote} from "./handlers/Voting";
+import {
+    handleCastObjection,
+    handleCastVote, handleChangeMinQuorum, handleChangeObjectionPhaseTime,
+    handleChangeSupportRequired, handleChangeVoteTime,
+    handleExecuteVote,
+    handleStartVote
+} from "./handlers/Voting";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -292,6 +298,38 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { voteId } = votingEvents.ExecuteVote.decode(e);
                 await handleExecuteVote(voteId, e, entityCache);
                 console.log(`Voting.handleExecuteVote - End`);
+            }
+
+            // Voting.handleChangeSupportRequired
+            else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ChangeSupportRequired.topic) {
+                console.log(`Voting.handleChangeSupportRequired - Start`);
+                const { supportRequiredPct } = votingEvents.ChangeSupportRequired.decode(e);
+                await handleChangeSupportRequired(supportRequiredPct, e, entityCache);
+                console.log(`Voting.handleChangeSupportRequired - End`);
+            }
+
+            // Voting.handleChangeMinQuorum
+            else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ChangeMinQuorum.topic) {
+                console.log(`Voting.handleChangeMinQuorum - Start`);
+                const { minAcceptQuorumPct } = votingEvents.ChangeMinQuorum.decode(e);
+                await handleChangeMinQuorum(minAcceptQuorumPct, e, entityCache);
+                console.log(`Voting.handleChangeMinQuorum - End`);
+            }
+
+            // Voting.handleChangeVoteTime
+            else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ChangeVoteTime.topic) {
+                console.log(`Voting.handleChangeVoteTime - Start`);
+                const { voteTime } = votingEvents.ChangeVoteTime.decode(e);
+                await handleChangeVoteTime(voteTime, e, entityCache);
+                console.log(`Voting.handleChangeVoteTime - End`);
+            }
+
+            // Voting.handleChangeObjectionPhaseTime
+            else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ChangeObjectionPhaseTime.topic) {
+                console.log(`Voting.handleChangeObjectionPhaseTime - Start`);
+                const { objectionPhaseTime } = votingEvents.ChangeObjectionPhaseTime.decode(e);
+                await handleChangeObjectionPhaseTime(objectionPhaseTime, e, entityCache);
+                console.log(`Voting.handleChangeObjectionPhaseTime - End`);
             }
 
         }

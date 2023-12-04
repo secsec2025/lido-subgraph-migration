@@ -1,5 +1,5 @@
 import {EntityCache} from "../entity-cache";
-import {Vote, Voting, VotingObjection} from "../model";
+import {Vote, Voting, VotingConfig, VotingObjection} from "../model";
 import assert from "assert";
 import {_loadSharesEntity, _loadTotalsEntity} from "./helpers";
 
@@ -68,4 +68,46 @@ export const handleExecuteVote = async (voteId: bigint, logEvent: any, entityCac
     }
 
     entityCache.saveVoting(entity);
+}
+
+
+// Global settings
+
+export const handleChangeSupportRequired = async (supportRequiredPct: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadVotingConfig(entityCache);
+    entity.supportRequiredPct = supportRequiredPct;
+    entityCache.saveVotingConfig(entity);
+}
+
+export const handleChangeMinQuorum = async (minAcceptQuorumPct: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadVotingConfig(entityCache);
+    entity.minAcceptQuorumPct = minAcceptQuorumPct;
+    entityCache.saveVotingConfig(entity);
+}
+
+export const handleChangeVoteTime = async (voteTime: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadVotingConfig(entityCache);
+    entity.voteTime = voteTime;
+    entityCache.saveVotingConfig(entity);
+}
+
+export const handleChangeObjectionPhaseTime = async (objectionPhaseTime: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadVotingConfig(entityCache);
+    entity.objectionPhaseTime = objectionPhaseTime;
+    entityCache.saveVotingConfig(entity);
+}
+
+
+async function _loadVotingConfig(entityCache: EntityCache): Promise<VotingConfig> {
+    let entity = await entityCache.getVotingConfig('');
+    if (!entity) {
+        entity = new VotingConfig({
+            id: '',
+            supportRequiredPct: 0n,
+            minAcceptQuorumPct: 0n,
+            voteTime: 0n,
+            objectionPhaseTime: 0n
+        });
+    }
+    return entity;
 }

@@ -6,7 +6,7 @@ import {
     NodeOperatorFees, NodeOperatorsShares, OracleCompleted, OracleConfig, OracleExpectedEpoch, OracleMember,
     Shares, SharesBurn, Stats,
     TotalReward,
-    Totals, Vote, Voting, VotingObjection
+    Totals, Vote, Voting, VotingConfig, VotingObjection
 } from "./model";
 import {DataHandlerContext} from "@subsquid/evm-processor";
 import {Store} from "@subsquid/typeorm-store";
@@ -36,6 +36,7 @@ export class EntityCache {
     public voting!: Map<string, Voting>;
     public votes!: Map<string, Vote>;
     public votingObjections!: Map<string, VotingObjection>;
+    public votingConfig!: Map<string, VotingConfig>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -68,6 +69,7 @@ export class EntityCache {
         this.voting = new Map<string, Voting>();
         this.votes = new Map<string, Vote>();
         this.votingObjections = new Map<string, VotingObjection>();
+        this.votingConfig = new Map<string, VotingConfig>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -408,6 +410,20 @@ export class EntityCache {
         this.votingObjections.set(ls.id, ls);
     }
 
+    getVotingConfig = async (id: string): Promise<VotingConfig | undefined> => {
+        // Check if entity exists in cache
+        if (this.votingConfig.has(id)) return this.votingConfig.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(VotingConfig, id);
+        if (a) this.votingConfig.set(id, a);
+        return a;
+    }
+
+    saveVotingConfig = (ls: VotingConfig) => {
+        this.votingConfig.set(ls.id, ls);
+    }
+
 
 
 
@@ -436,6 +452,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.voting.values()]);
         await this.ctx.store.upsert([...this.votes.values()]);
         await this.ctx.store.upsert([...this.votingObjections.values()]);
+        await this.ctx.store.upsert([...this.votingConfig.values()]);
 
         if (flushCache) {
             this.initializeMaps();
