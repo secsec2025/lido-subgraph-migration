@@ -102,17 +102,13 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // Lido.handleSharesBurnt
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.SharesBurnt.topic) {
-                console.log(`Lido.handleSharesBurnt - Start`);
                 await mainHandleSharesBurnt(e, entityCache);
-                console.log(`Lido.handleSharesBurnt - End`);
             }
 
             // Lido.handleETHDistributed
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.ETHDistributed.topic) {
-                console.log(`Lido.handleETHDistributed - Start`);
                 const {reportTimestamp,preCLBalance, postCLBalance, withdrawalsWithdrawn, executionLayerRewardsWithdrawn, postBufferedEther } = lidoEvents.ETHDistributed.decode(e);
                 await handleETHDistributed(reportTimestamp,preCLBalance, postCLBalance, withdrawalsWithdrawn, executionLayerRewardsWithdrawn, postBufferedEther, e, entityCache);
-                console.log(`Lido.handleETHDistributed - End`);
             }
 
             // Lido.handleLidoLocatorSet
@@ -410,18 +406,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // AccountingOracle.handleProcessingStarted
             else if (e.address.toLowerCase() === LIDO_ACCOUNTING_ORACLE_ADDRESS && e.topics[0] === accountingOracleEvents.ProcessingStarted.topic) {
-                console.log(`AccountingOracle.handleProcessingStarted - Start`);
                 const { refSlot, hash } = accountingOracleEvents.ProcessingStarted.decode(e);
                 await handleProcessingStarted(refSlot, hash, e, entityCache);
-                console.log(`AccountingOracle.handleProcessingStarted - End`);
             }
 
             // AccountingOracle.handleExtraDataSubmitted
             else if (e.address.toLowerCase() === LIDO_ACCOUNTING_ORACLE_ADDRESS && e.topics[0] === accountingOracleEvents.ExtraDataSubmitted.topic) {
-                console.log(`AccountingOracle.handleExtraDataSubmitted - Start`);
                 const { refSlot, itemsProcessed, itemsCount } = accountingOracleEvents.ExtraDataSubmitted.decode(e);
                 await handleExtraDataSubmitted(refSlot, itemsProcessed, itemsCount, ctx, e, entityCache);
-                console.log(`AccountingOracle.handleExtraDataSubmitted - End`);
             }
 
             // WithdrawalQueue.handleBunkerModeDisabled
@@ -464,26 +456,20 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // WithdrawalQueue.handleWithdrawalClaimed
             else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.WithdrawalClaimed.topic) {
-                console.log(`WithdrawalQueue.handleWithdrawalClaimed - Start`);
                 const { requestId, owner, receiver, amountOfETH  } = withdrawalQueueEvents.WithdrawalClaimed.decode(e);
                 await handleWithdrawalClaimed(requestId, owner.toLowerCase(), receiver.toLowerCase(), amountOfETH, e, entityCache);
-                console.log(`WithdrawalQueue.handleWithdrawalClaimed - End`);
             }
 
             // WithdrawalQueue.handleWithdrawalRequested
             else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.WithdrawalRequested.topic) {
-                console.log(`WithdrawalQueue.handleWithdrawalRequested - Start`);
                 const { requestId, requestor, owner, amountOfStETH, amountOfShares  } = withdrawalQueueEvents.WithdrawalRequested.decode(e);
                 await handleWithdrawalRequested(requestId, requestor.toLowerCase(), owner.toLowerCase(), amountOfStETH, amountOfShares, e, entityCache);
-                console.log(`WithdrawalQueue.handleWithdrawalRequested - End`);
             }
 
             // WithdrawalQueue.handleWithdrawalsFinalized
             else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.WithdrawalsFinalized.topic) {
-                console.log(`WithdrawalQueue.handleWithdrawalsFinalized - Start`);
                 const { from, to, amountOfETHLocked, sharesToBurn, timestamp  } = withdrawalQueueEvents.WithdrawalsFinalized.decode(e);
                 await handleWithdrawalsFinalized(from, to, amountOfETHLocked, sharesToBurn, timestamp, e, entityCache);
-                console.log(`WithdrawalQueue.handleWithdrawalsFinalized - End`);
             }
 
             // WithdrawalQueue.handleWithdrawalBatchFinalized
