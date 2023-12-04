@@ -74,7 +74,10 @@ export const processor = new EvmBatchProcessor()
         range: {from: 11473216}
     }).addLog({
         address: [LIDO_EASY_TRACK_ADDRESS],
-        topic0: [easyTrackEvents.EVMScriptExecutorChanged.topic, easyTrackEvents.EVMScriptFactoryAdded.topic],
+        topic0: [easyTrackEvents.EVMScriptExecutorChanged.topic, easyTrackEvents.EVMScriptFactoryAdded.topic,
+            easyTrackEvents.EVMScriptFactoryRemoved.topic, easyTrackEvents.MotionCanceled.topic,
+            easyTrackEvents.MotionCreated.topic, easyTrackEvents.MotionDurationChanged.topic,
+            easyTrackEvents.MotionEnacted.topic, easyTrackEvents.MotionObjected.topic],
         range: {from: 13676720}
     }).addLog({
         address: [LIDO_STAKING_ROUTER_ADDRESS],

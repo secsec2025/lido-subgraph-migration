@@ -6,11 +6,11 @@ import {
     LidoApproval,
     LidoConfig,
     LidoSubmission,
-    LidoTransfer,
+    LidoTransfer, Motion,
     NodeOperator,
     NodeOperatorFees, NodeOperatorKeysOpIndex,
     NodeOperatorSigningKey,
-    NodeOperatorsShares,
+    NodeOperatorsShares, Objection,
     OracleCompleted,
     OracleConfig,
     OracleExpectedEpoch,
@@ -63,6 +63,8 @@ export class EntityCache {
     public withdrawalFinalized!: Map<string, WithdrawalsFinalized>;
     public easyTrackConfig!: Map<string, EasyTrackConfig>;
     public evmScriptFactory!: Map<string, EVMScriptFactory>;
+    public motions!: Map<string, Motion>;
+    public objections!: Map<string, Objection>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -105,6 +107,8 @@ export class EntityCache {
         this.withdrawalFinalized = new Map<string, WithdrawalsFinalized>();
         this.easyTrackConfig = new Map<string, EasyTrackConfig>();
         this.evmScriptFactory = new Map<string, EVMScriptFactory>();
+        this.motions = new Map<string, Motion>();
+        this.objections = new Map<string, Objection>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -585,6 +589,34 @@ export class EntityCache {
         this.evmScriptFactory.set(ls.id, ls);
     }
 
+    getMotion = async (id: string): Promise<Motion | undefined> => {
+        // Check if entity exists in cache
+        if (this.motions.has(id)) return this.motions.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(Motion, id);
+        if (a) this.motions.set(id, a);
+        return a;
+    }
+
+    saveMotion = (ls: Motion) => {
+        this.motions.set(ls.id, ls);
+    }
+
+    getObjection = async (id: string): Promise<Objection | undefined> => {
+        // Check if entity exists in cache
+        if (this.objections.has(id)) return this.objections.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(Objection, id);
+        if (a) this.objections.set(id, a);
+        return a;
+    }
+
+    saveObjection = (ls: Objection) => {
+        this.objections.set(ls.id, ls);
+    }
+
 
 
 
@@ -623,6 +655,8 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.withdrawalFinalized.values()]);
         await this.ctx.store.upsert([...this.easyTrackConfig.values()]);
         await this.ctx.store.upsert([...this.evmScriptFactory.values()]);
+        await this.ctx.store.upsert([...this.motions.values()]);
+        await this.ctx.store.upsert([...this.objections.values()]);
 
         if (flushCache) {
             this.initializeMaps();

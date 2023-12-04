@@ -1,5 +1,5 @@
-module.exports = class Data1701703879054 {
-    name = 'Data1701703879054'
+module.exports = class Data1701714918186 {
+    name = 'Data1701714918186'
 
     async up(db) {
         await db.query(`CREATE TABLE "lido_config" ("id" character varying NOT NULL, "insurance_fund" text, "oracle" text, "treasury" text, "is_stopped" boolean NOT NULL, "is_staking_paused" boolean NOT NULL, "max_stake_limit" numeric NOT NULL, "stake_limit_increase_per_block" numeric NOT NULL, "el_rewards_vault" text, "el_rewards_withdrawal_limit_points" numeric NOT NULL, "withdrawal_credentials" text NOT NULL, "wc_set_by" text, "lido_locator" text, CONSTRAINT "PK_616d6a5f5d35ea7b294d1d21f5a" PRIMARY KEY ("id"))`)
@@ -34,8 +34,8 @@ module.exports = class Data1701703879054 {
         await db.query(`CREATE TABLE "voting_objection" ("id" character varying NOT NULL, "voting_id" character varying, "voter" text NOT NULL, "stake" numeric NOT NULL, CONSTRAINT "PK_40bde3e12e72377b1e025ea1500" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_549d7aff86c62fabb6dc5ed458" ON "voting_objection" ("voting_id") `)
         await db.query(`CREATE TABLE "voting" ("id" character varying NOT NULL, "index" integer NOT NULL, "creator" text NOT NULL, "metadata" text NOT NULL, "executed" boolean NOT NULL, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_2dff1e5c53fa2cc610bea30476c" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE TABLE "objection" ("id" character varying NOT NULL, "motion_id" character varying NOT NULL, "objector" text NOT NULL, "weight" numeric NOT NULL, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_f66a92a8254c445494f6cc3be60" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE INDEX "IDX_c913d483a2294e198c2f5ddf62" ON "objection" ("motion_id") `)
+        await db.query(`CREATE TABLE "objection" ("id" character varying NOT NULL, "motion_id" numeric NOT NULL, "objector" text NOT NULL, "weight" numeric NOT NULL, "mid" character varying, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_f66a92a8254c445494f6cc3be60" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE INDEX "IDX_067577fc2291646b8c125f29c3" ON "objection" ("mid") `)
         await db.query(`CREATE TABLE "motion" ("id" character varying NOT NULL, "creator" text NOT NULL, "evm_script_factory" text NOT NULL, "duration" numeric, "start_date" numeric NOT NULL, "snapshot_block" numeric NOT NULL, "objections_amount" numeric NOT NULL, "objections_amount_pct" numeric NOT NULL, "objections_threshold" numeric, "evm_script_hash" text NOT NULL, "evm_script_calldata" text NOT NULL, "status" text NOT NULL, "enacted_at" numeric, "canceled_at" numeric, "rejected_at" numeric, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_6b577ebda54089e75b75f98058d" PRIMARY KEY ("id"))`)
         await db.query(`CREATE TABLE "easy_track_config" ("id" character varying NOT NULL, "evm_script_executor" text NOT NULL, "motion_duration" numeric NOT NULL, "motions_count_limit" numeric NOT NULL, "objections_threshold" numeric NOT NULL, "is_paused" boolean NOT NULL, CONSTRAINT "PK_9b880e33319d7800695911165ce" PRIMARY KEY ("id"))`)
         await db.query(`CREATE TABLE "role" ("id" character varying NOT NULL, "role" text NOT NULL, "address" text NOT NULL, "creator" text NOT NULL, "is_active" boolean NOT NULL, CONSTRAINT "PK_b36bcfe02fc8de3c57a8b2391c2" PRIMARY KEY ("id"))`)
@@ -51,7 +51,7 @@ module.exports = class Data1701703879054 {
         await db.query(`ALTER TABLE "node_operator_signing_key" ADD CONSTRAINT "FK_2dc7071603aac382bf52abb370b" FOREIGN KEY ("opidfk") REFERENCES "node_operator"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "vote" ADD CONSTRAINT "FK_9c9329de9d83f5bd4b31d04b7bf" FOREIGN KEY ("voting_id") REFERENCES "voting"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "voting_objection" ADD CONSTRAINT "FK_549d7aff86c62fabb6dc5ed458b" FOREIGN KEY ("voting_id") REFERENCES "voting"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
-        await db.query(`ALTER TABLE "objection" ADD CONSTRAINT "FK_c913d483a2294e198c2f5ddf62b" FOREIGN KEY ("motion_id") REFERENCES "motion"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+        await db.query(`ALTER TABLE "objection" ADD CONSTRAINT "FK_067577fc2291646b8c125f29c38" FOREIGN KEY ("mid") REFERENCES "motion"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
     }
 
     async down(db) {
@@ -88,7 +88,7 @@ module.exports = class Data1701703879054 {
         await db.query(`DROP INDEX "public"."IDX_549d7aff86c62fabb6dc5ed458"`)
         await db.query(`DROP TABLE "voting"`)
         await db.query(`DROP TABLE "objection"`)
-        await db.query(`DROP INDEX "public"."IDX_c913d483a2294e198c2f5ddf62"`)
+        await db.query(`DROP INDEX "public"."IDX_067577fc2291646b8c125f29c3"`)
         await db.query(`DROP TABLE "motion"`)
         await db.query(`DROP TABLE "easy_track_config"`)
         await db.query(`DROP TABLE "role"`)
@@ -104,6 +104,6 @@ module.exports = class Data1701703879054 {
         await db.query(`ALTER TABLE "node_operator_signing_key" DROP CONSTRAINT "FK_2dc7071603aac382bf52abb370b"`)
         await db.query(`ALTER TABLE "vote" DROP CONSTRAINT "FK_9c9329de9d83f5bd4b31d04b7bf"`)
         await db.query(`ALTER TABLE "voting_objection" DROP CONSTRAINT "FK_549d7aff86c62fabb6dc5ed458b"`)
-        await db.query(`ALTER TABLE "objection" DROP CONSTRAINT "FK_c913d483a2294e198c2f5ddf62b"`)
+        await db.query(`ALTER TABLE "objection" DROP CONSTRAINT "FK_067577fc2291646b8c125f29c38"`)
     }
 }

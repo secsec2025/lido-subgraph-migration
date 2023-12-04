@@ -75,7 +75,15 @@ import {
     handleWithdrawalClaimed, handleWithdrawalRequested, handleWithdrawalsFinalized
 } from "./handlers/WithdrawalQueue";
 import {handleFrameConfigSet} from "./handlers/HashConsensus";
-import {handleEVMScriptExecutorChanged, handleEVMScriptFactoryAdded} from "./handlers/EasyTrack";
+import {
+    handleEVMScriptExecutorChanged,
+    handleEVMScriptFactoryAdded,
+    handleEVMScriptFactoryRemoved,
+    handleMotionCanceled,
+    handleMotionCreated,
+    handleMotionDurationChanged,
+    handleMotionEnacted, handleMotionObjected
+} from "./handlers/EasyTrack";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -412,6 +420,54 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { _evmScriptFactory, _permissions } = easyTrackEvents.EVMScriptFactoryAdded.decode(e);
                 await handleEVMScriptFactoryAdded(_evmScriptFactory.toLowerCase(), _permissions, e, entityCache);
                 console.log(`EasyTrack.handleEVMScriptFactoryAdded - End`);
+            }
+
+            // EasyTrack.handleEVMScriptFactoryRemoved
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.EVMScriptFactoryRemoved.topic) {
+                console.log(`EasyTrack.handleEVMScriptFactoryRemoved - Start`);
+                const { _evmScriptFactory } = easyTrackEvents.EVMScriptFactoryRemoved.decode(e);
+                await handleEVMScriptFactoryRemoved(_evmScriptFactory.toLowerCase(), e, entityCache);
+                console.log(`EasyTrack.handleEVMScriptFactoryRemoved - End`);
+            }
+
+            // EasyTrack.handleMotionCreated
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionCreated.topic) {
+                console.log(`EasyTrack.handleMotionCreated - Start`);
+                const { _motionId, _creator, _evmScriptFactory, _evmScriptCallData, _evmScript } = easyTrackEvents.MotionCreated.decode(e);
+                await handleMotionCreated(_motionId, _creator.toLowerCase(), _evmScriptFactory.toLowerCase(), _evmScriptCallData, _evmScript, e, entityCache);
+                console.log(`EasyTrack.handleMotionCreated - End`);
+            }
+
+            // EasyTrack.handleMotionDurationChanged
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionDurationChanged.topic) {
+                console.log(`EasyTrack.handleMotionDurationChanged - Start`);
+                const { _motionDuration } = easyTrackEvents.MotionDurationChanged.decode(e);
+                await handleMotionDurationChanged(_motionDuration, e, entityCache);
+                console.log(`EasyTrack.handleMotionDurationChanged - End`);
+            }
+
+            // EasyTrack.handleMotionEnacted
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionEnacted.topic) {
+                console.log(`EasyTrack.handleMotionEnacted - Start`);
+                const { _motionId } = easyTrackEvents.MotionEnacted.decode(e);
+                await handleMotionEnacted(_motionId, e, entityCache);
+                console.log(`EasyTrack.handleMotionEnacted - End`);
+            }
+
+            // EasyTrack.handleMotionObjected
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionObjected.topic) {
+                console.log(`EasyTrack.handleMotionObjected - Start`);
+                const { _motionId, _objector, _weight, _newObjectionsAmount, _newObjectionsAmountPct } = easyTrackEvents.MotionObjected.decode(e);
+                await handleMotionObjected(_motionId, _objector.toLowerCase(), _weight, _newObjectionsAmount, _newObjectionsAmountPct, e, entityCache);
+                console.log(`EasyTrack.handleMotionObjected - End`);
+            }
+
+            // EasyTrack.handleMotionCanceled
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionCanceled.topic) {
+                console.log(`EasyTrack.handleMotionCanceled - Start`);
+                const { _motionId } = easyTrackEvents.MotionCanceled.decode(e);
+                await handleMotionCanceled(_motionId, e, entityCache);
+                console.log(`EasyTrack.handleMotionCanceled - End`);
             }
 
             // StakingRouter.handleWithdrawalCredentialsSet
