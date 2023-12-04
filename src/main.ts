@@ -258,10 +258,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // NodeOperatorRegistry.handleNodeOperatorAdded
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorAdded.topic) {
-                console.log(`NodeOperatorRegistry.handleNodeOperatorAdded - Start`);
                 const { id, name, rewardAddress, stakingLimit } = nodeOperatorEvents.NodeOperatorAdded.decode(e);
                 await handleNodeOperatorAdded(id, name, rewardAddress.toLowerCase(), stakingLimit, e, entityCache);
-                console.log(`NodeOperatorRegistry.handleNodeOperatorAdded - End`);
             }
 
         }

@@ -42,7 +42,7 @@ export const handleSubmitted = async (sender: string, amount: bigint, referral: 
 
     // Loading totals
     const totals = await _loadTotalsEntity(true, entityCache);
-    if (!totals) return;
+    assert(totals, `Undefined totals object while processing Log ${logEvent}`);
 
     let shares: bigint;
     // after TransferShares event has been added just take shares value from it
@@ -78,7 +78,7 @@ export const handleSubmitted = async (sender: string, amount: bigint, referral: 
     entity.shares = shares;
 
     const sharesEntity = await _loadSharesEntity(sender, true, entityCache);
-    if (!sharesEntity) return;
+    assert(sharesEntity, `Undefined sharesEntity object while processing Log ${logEvent}`);
     entity.sharesBefore = sharesEntity.shares;
     entity.sharesAfter = entity.sharesBefore + shares;
 
@@ -106,7 +106,7 @@ export const handleTransfer = async (from: string, to: string, value: bigint, lo
 
     // Entity is already created at this point
     const totals = await _loadTotalsEntity(false, entityCache);
-    if (!totals) return;
+    assert(totals, `Undefined totals object while processing Log ${logEvent}`);
     assert(totals.totalPooledEther > 0n, 'transfer with zero totalPooledEther');
 
     entity.totalPooledEther = totals.totalPooledEther;
@@ -227,8 +227,7 @@ export const handleTransfer = async (from: string, to: string, value: bigint, lo
 
                     // Entity should already exist at this point
                     const nodeOperatorShare = await entityCache.getNodeOperatorsShare(`${logEvent.transactionHash}${entity.to}`);
-                    if (!nodeOperatorShare) return;
-                    // const nodeOperatorShare = NodeOperatorsShares.load(event.transaction.hash.toHex() + '-' + entity.to.toHexString())!
+                    assert(nodeOperatorShare, `undefined nodeOperatorShare for ${logEvent.transactionHash}${entity.to}`);
 
                     if (eventTransferShares) {
                         assert(
@@ -264,7 +263,7 @@ export const handleTransfer = async (from: string, to: string, value: bigint, lo
                 // prior TransferShares logic
                 // Submission entity should exist with the previous logIndex (as mint Transfer occurs only after Submit event)
                 let submissionEntity = await entityCache.getLidoSubmission(`${logEvent.transactionHash}${logEvent.logIndex-1}`);
-                if (!submissionEntity) return;
+                assert(submissionEntity, `Undefined submissionEntity for ID - ${logEvent.transactionHash}${logEvent.logIndex-1}`);
                 // let submissionEntity = LidoSubmission.load(
                 //   event.transaction.hash.toHex() + '-' + event.logIndex.minus(ONE).toString()
                 // )!
@@ -300,7 +299,7 @@ export const handleSharesBurnt = async (account: string,preRebaseTokenAmount: bi
 
     // Totals should be already non-null here
     const totals = await _loadTotalsEntity(false, entityCache);
-    if (!totals) return;
+    assert(totals, `Undefined totals object while processing Log ${logEvent}`);
     totals.totalShares = totals.totalShares - sharesAmount;
     assert(totals.totalShares >= 0n, 'negative totalShares after shares burn')
     entityCache.saveTotals(totals);
@@ -358,7 +357,7 @@ export const handleETHDistributed = async (reportTimestamp: bigint,preCLBalance:
 
     // Totals should be already non-null on oracle report
     const totals = await _loadTotalsEntity(false, entityCache);
-    if (!totals) return;
+    assert(totals, `Undefined totals object while processing Log ${logEvent}`);
     assert(
         totals.totalPooledEther === tokenRebasedEvent.params['preTotalEther'],
         "totalPooledEther mismatch report's preTotalEther"
@@ -394,7 +393,7 @@ export const handleETHDistributed = async (reportTimestamp: bigint,preCLBalance:
     const totalRewards = postCLTotalBalance - preCLBalance + executionLayerRewardsWithdrawn;
 
     const totalRewardsEntity = await _loadTotalRewardEntity(logEvent, true, entityCache);
-    if (!totalRewardsEntity) return;
+    assert(totalRewardsEntity, `Undefined totalRewardsEntity object while processing Log ${logEvent}`);
 
     totalRewardsEntity.totalRewards = totalRewards;
     totalRewardsEntity.totalRewardsWithFees = totalRewardsEntity.totalRewards;
@@ -513,7 +512,7 @@ export const handleELRewardsVaultSet = async (executionLayerRewardsVault: string
 export const handleBeaconValidatorsUpdated = async (beaconValidators: bigint, ctx: any, logEvent: any, entityCache: EntityCache) => {
     // Totals entity should exist
     const totals = await _loadTotalsEntity(false, entityCache);
-    if (!totals) return;
+    assert(totals, `Undefined totals object while processing Log ${logEvent}`);
     // Just grab the correct value from the contract
     totals.totalPooledEther = await getTotalPooledEtherFromLidoContract(logEvent.address, ctx, logEvent);
     entityCache.saveTotals(totals);
