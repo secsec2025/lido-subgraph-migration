@@ -1,10 +1,17 @@
 import {TypeormDatabase} from '@subsquid/typeorm-store'
 import {processor} from './processor'
-import {LEGACY_ORACLE_ADDRESS, LIDO_ADDRESS, LIDO_DAO_ADDRESS, NODE_OPERATORS_REGISTRY_ADDRESS} from "./constants";
+import {
+    LEGACY_ORACLE_ADDRESS,
+    LIDO_ADDRESS,
+    LIDO_DAO_ADDRESS,
+    LIDO_VOTING_ADDRESS,
+    NODE_OPERATORS_REGISTRY_ADDRESS
+} from "./constants";
 
 import {events as lidoDAOEvents} from './abi/LidoDAO';
 import {events as lidoEvents} from './abi/Lido';
 import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
+import {events as votingEvents} from './abi/Voting';
 
 import {handleSetApp} from './handlers/LidoDAO';
 
@@ -36,6 +43,7 @@ import {
     handlePostTotalShares, handleQuorumChanged
 } from "./handlers/LegacyOracle";
 import {handleNodeOperatorAdded} from "./handlers/NodeOperatorsRegistry";
+import {handleStartVote} from "./handlers/Voting";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -190,10 +198,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // LegacyOracle.handlePostTotalShares
             else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.PostTotalShares.topic) {
-                console.log(`LegacyOracle.handlePostTotalShares - Start`);
                 const { postTotalPooledEther, preTotalPooledEther, timeElapsed, totalShares } = legacyOracleEvents.PostTotalShares.decode(e);
                 await handlePostTotalShares(postTotalPooledEther, preTotalPooledEther, timeElapsed, totalShares, e, entityCache);
-                console.log(`LegacyOracle.handlePostTotalShares - End`);
             }
 
             // LegacyOracle.handleMemberAdded
@@ -212,10 +218,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // LegacyOracle.handleContractVersionSet
             else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.ContractVersionSet.topic) {
-                console.log(`LegacyOracle.handleContractVersionSet - Start`);
                 const { version } = legacyOracleEvents.ContractVersionSet.decode(e);
                 await handleContractVersionSet(version, e, entityCache);
-                console.log(`LegacyOracle.handleContractVersionSet - End`);
             }
 
             // LegacyOracle.handleQuorumChanged
@@ -242,24 +246,28 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // LegacyOracle.handleAllowedBeaconBalanceRelativeDecreaseSet
             else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.AllowedBeaconBalanceRelativeDecreaseSet.topic) {
-                console.log(`LegacyOracle.handleAllowedBeaconBalanceRelativeDecreaseSet - Start`);
                 const { value } = legacyOracleEvents.AllowedBeaconBalanceRelativeDecreaseSet.decode(e);
                 await handleAllowedBeaconBalanceRelativeDecreaseSet(value, e, entityCache);
-                console.log(`LegacyOracle.handleAllowedBeaconBalanceRelativeDecreaseSet - End`);
             }
 
             // LegacyOracle.handleAllowedBeaconBalanceAnnualRelativeIncreaseSet
             else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.AllowedBeaconBalanceAnnualRelativeIncreaseSet.topic) {
-                console.log(`LegacyOracle.handleAllowedBeaconBalanceAnnualRelativeIncreaseSet - Start`);
                 const { value } = legacyOracleEvents.AllowedBeaconBalanceAnnualRelativeIncreaseSet.decode(e);
                 await handleAllowedBeaconBalanceAnnualRelativeIncreaseSet(value, e, entityCache);
-                console.log(`LegacyOracle.handleAllowedBeaconBalanceAnnualRelativeIncreaseSet - End`);
             }
 
             // NodeOperatorRegistry.handleNodeOperatorAdded
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorAdded.topic) {
                 const { id, name, rewardAddress, stakingLimit } = nodeOperatorEvents.NodeOperatorAdded.decode(e);
                 await handleNodeOperatorAdded(id, name, rewardAddress.toLowerCase(), stakingLimit, e, entityCache);
+            }
+
+            // Voting.handleStartVote
+            else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.StartVote.topic) {
+                console.log(`Voting.handleStartVote - Start`);
+                const { voteId, creator, metadata } = votingEvents.StartVote.decode(e);
+                await handleStartVote(voteId, creator.toLowerCase(), metadata, e, entityCache);
+                console.log(`Voting.handleStartVote - End`);
             }
 
         }

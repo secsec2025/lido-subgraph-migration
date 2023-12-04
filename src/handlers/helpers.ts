@@ -183,7 +183,7 @@ export async function _updateTransferShares(entity: LidoTransfer, entityCache: E
             // }
             assert(
                 sharesFromEntity.shares >= entity.shares,
-                'negative shares decrease on transfer'
+                `negative shares decrease on transfer ${entity.transactionHash}`
             )
             sharesFromEntity.shares = sharesFromEntity.shares - entity.shares;
             entityCache.saveShares(sharesFromEntity);
@@ -193,7 +193,7 @@ export async function _updateTransferShares(entity: LidoTransfer, entityCache: E
     // Increasing to address shares
     if (entity.to !== ZERO_ADDRESS) {
         const sharesToEntity = await _loadSharesEntity(entity.to, true, entityCache);
-        if (!sharesToEntity) return;;
+        if (!sharesToEntity) return;
         entity.sharesBeforeIncrease = sharesToEntity.shares;
         if (entity.to !== entity.from && entity.shares !== 0n) {
             sharesToEntity.shares = sharesToEntity.shares + entity.shares;

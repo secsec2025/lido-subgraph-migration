@@ -2,12 +2,19 @@ import {lookupArchive} from '@subsquid/archive-registry';
 import {
     EvmBatchProcessor
 } from '@subsquid/evm-processor';
-import {LEGACY_ORACLE_ADDRESS, LIDO_ADDRESS, LIDO_DAO_ADDRESS, NODE_OPERATORS_REGISTRY_ADDRESS} from "./constants";
+import {
+    LEGACY_ORACLE_ADDRESS,
+    LIDO_ADDRESS,
+    LIDO_DAO_ADDRESS,
+    LIDO_VOTING_ADDRESS,
+    NODE_OPERATORS_REGISTRY_ADDRESS
+} from "./constants";
 
 import {events as lidoDAOEvents} from './abi/LidoDAO';
 import {events as lidoEvents} from './abi/Lido';
 import {events as legacyOracleEvents} from './abi/LegacyOracle';
 import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
+import {events as votingEvents} from './abi/Voting';
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
@@ -49,6 +56,10 @@ export const processor = new EvmBatchProcessor()
     }).addLog({
         address: [NODE_OPERATORS_REGISTRY_ADDRESS],
         topic0: [nodeOperatorEvents.NodeOperatorAdded.topic],
+        range: {from: 11473216}
+    }).addLog({
+        address: [LIDO_VOTING_ADDRESS],
+        topic0: [votingEvents.StartVote.topic],
         range: {from: 11473216}
     }).setFields({
         log: {
