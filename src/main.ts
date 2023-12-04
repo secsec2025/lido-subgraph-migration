@@ -3,7 +3,7 @@ import {processor} from './processor'
 import {
     LEGACY_ORACLE_ADDRESS, LIDO_ACCOUNTING_ORACLE_ADDRESS,
     LIDO_ADDRESS,
-    LIDO_DAO_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
+    LIDO_DAO_ADDRESS, LIDO_HASH_CONSENSUS_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
     LIDO_VOTING_ADDRESS, LIDO_WITHDRAWAL_QUEUE_ADDRESS,
     NODE_OPERATORS_REGISTRY_ADDRESS
 } from "./constants";
@@ -15,6 +15,7 @@ import {events as votingEvents} from './abi/Voting';
 import {events as stakingRouterEvents} from './abi/StakingRouter';
 import {events as accountingOracleEvents} from './abi/AccountingOracle';
 import {events as withdrawalQueueEvents} from './abi/WithdrawalQueue';
+import {events as hashConsensusEvents} from './abi/HashConsensus';
 
 import {handleSetApp} from './handlers/LidoDAO';
 
@@ -72,6 +73,7 @@ import {
     handleResumedWithdrawalQueue,
     handleWithdrawalClaimed, handleWithdrawalRequested, handleWithdrawalsFinalized
 } from "./handlers/WithdrawalQueue";
+import {handleFrameConfigSet} from "./handlers/HashConsensus";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -490,6 +492,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { from, to, amountOfETHLocked, sharesToBurn, timestamp  } = withdrawalQueueEvents.WithdrawalBatchFinalized.decode(e);
                 await handleWithdrawalsFinalized(from, to, amountOfETHLocked, sharesToBurn, timestamp, e, entityCache);
                 console.log(`WithdrawalQueue.handleWithdrawalBatchFinalized - End`);
+            }
+
+            // HashConsensus.handleFrameConfigSet
+            else if (e.address.toLowerCase() === LIDO_HASH_CONSENSUS_ADDRESS && e.topics[0] === hashConsensusEvents.FrameConfigSet.topic) {
+                console.log(`HashConsensus.handleFrameConfigSet - Start`);
+                const { newInitialEpoch, newEpochsPerFrame  } = hashConsensusEvents.FrameConfigSet.decode(e);
+                await handleFrameConfigSet(newInitialEpoch, newEpochsPerFrame, ctx, e, entityCache);
+                console.log(`HashConsensus.handleFrameConfigSet - End`);
             }
 
         }
