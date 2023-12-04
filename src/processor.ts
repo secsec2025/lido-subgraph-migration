@@ -3,7 +3,7 @@ import {
     EvmBatchProcessor
 } from '@subsquid/evm-processor';
 import {
-    LEGACY_ORACLE_ADDRESS,
+    LEGACY_ORACLE_ADDRESS, LIDO_ACCOUNTING_ORACLE_ADDRESS,
     LIDO_ADDRESS,
     LIDO_DAO_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
     LIDO_VOTING_ADDRESS,
@@ -16,6 +16,7 @@ import {events as legacyOracleEvents} from './abi/LegacyOracle';
 import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
 import {events as votingEvents} from './abi/Voting';
 import {events as stakingRouterEvents} from './abi/StakingRouter';
+import {events as accountingOracleEvents} from './abi/AccountingOracle';
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
@@ -72,6 +73,11 @@ export const processor = new EvmBatchProcessor()
         address: [LIDO_STAKING_ROUTER_ADDRESS],
         topic0: [stakingRouterEvents.WithdrawalCredentialsSet.topic],
         range: {from: 17175000}
+    }).addLog({
+        address: [LIDO_ACCOUNTING_ORACLE_ADDRESS],
+        topic0: [accountingOracleEvents.ProcessingStarted.topic],
+        range: {from: 17175000},
+        transaction: true
     }).setFields({
         log: {
             address: true,

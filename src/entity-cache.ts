@@ -14,7 +14,7 @@ import {
     OracleCompleted,
     OracleConfig,
     OracleExpectedEpoch,
-    OracleMember,
+    OracleMember, OracleReport,
     Shares,
     SharesBurn,
     Stats,
@@ -48,6 +48,7 @@ export class EntityCache {
     public oracleCompleted!: Map<string, OracleCompleted>;
     public oracleConfig!: Map<string, OracleConfig>;
     public oracleExpectedEpoch!: Map<string, OracleExpectedEpoch>;
+    public oracleReports!: Map<string, OracleReport>;
     public beaconReports!: Map<string, BeaconReport>;
     public oracleMembers!: Map<string, OracleMember>;
     public voting!: Map<string, Voting>;
@@ -83,6 +84,7 @@ export class EntityCache {
         this.oracleCompleted = new Map<string, OracleCompleted>();
         this.oracleConfig = new Map<string, OracleConfig>();
         this.oracleExpectedEpoch = new Map<string, OracleExpectedEpoch>();
+        this.oracleReports = new Map<string, OracleReport>();
         this.beaconReports = new Map<string, BeaconReport>();
         this.oracleMembers = new Map<string, OracleMember>();
         this.voting = new Map<string, Voting>();
@@ -347,6 +349,20 @@ export class EntityCache {
         this.oracleExpectedEpoch.set(ls.id, ls);
     }
 
+    getOracleReport = async (id: string): Promise<OracleReport | undefined> => {
+        // Check if entity exists in cache
+        if (this.oracleReports.has(id)) return this.oracleReports.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(OracleReport, id);
+        if (a) this.oracleReports.set(id, a);
+        return a;
+    }
+
+    saveOracleReport = (ls: OracleReport) => {
+        this.oracleReports.set(ls.id, ls);
+    }
+
     getBeaconReport = async (id: string): Promise<BeaconReport | undefined> => {
         // Check if entity exists in cache
         if (this.beaconReports.has(id)) return this.beaconReports.get(id);
@@ -496,6 +512,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.oracleCompleted.values()]);
         await this.ctx.store.upsert([...this.oracleConfig.values()]);
         await this.ctx.store.upsert([...this.oracleExpectedEpoch.values()]);
+        await this.ctx.store.upsert([...this.oracleReports.values()]);
         await this.ctx.store.upsert([...this.beaconReports.values()]);
         await this.ctx.store.upsert([...this.oracleMembers.values()]);
         await this.ctx.store.upsert([...this.voting.values()]);

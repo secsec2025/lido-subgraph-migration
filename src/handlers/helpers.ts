@@ -3,7 +3,7 @@ import {
     Holder,
     LidoConfig,
     LidoTransfer,
-    OracleConfig,
+    OracleConfig, OracleReport,
     Shares,
     Stats,
     TotalReward,
@@ -473,3 +473,15 @@ export function _calcAPR_v1(entity: TotalReward, preTotalPooledEther: bigint, po
 }
 
 
+export async function _loadOracleReport(refSLot: bigint, create: boolean = false, entityCache: EntityCache): Promise<OracleReport | undefined> {
+    let entity = await entityCache.getOracleReport(refSLot.toString());
+    if (!entity && create) {
+        entity = new OracleReport({
+            id: refSLot.toString(),
+            itemsProcessed: 0n,
+            itemsCount: 0n
+        });
+    }
+
+    return entity;
+}

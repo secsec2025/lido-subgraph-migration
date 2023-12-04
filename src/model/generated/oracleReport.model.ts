@@ -18,6 +18,9 @@ export class OracleReport {
     @ManyToOne_(() => TotalReward, {nullable: true})
     totalReward!: TotalReward
 
+    @Column_({nullable: true})
+    totalRewardId!: string | undefined | null;
+
     @Column_("text", {nullable: false})
     hash!: string
 

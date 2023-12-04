@@ -1,7 +1,7 @@
 import {TypeormDatabase} from '@subsquid/typeorm-store'
 import {processor} from './processor'
 import {
-    LEGACY_ORACLE_ADDRESS,
+    LEGACY_ORACLE_ADDRESS, LIDO_ACCOUNTING_ORACLE_ADDRESS,
     LIDO_ADDRESS,
     LIDO_DAO_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
     LIDO_VOTING_ADDRESS,
@@ -13,6 +13,7 @@ import {events as lidoEvents} from './abi/Lido';
 import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
 import {events as votingEvents} from './abi/Voting';
 import {events as stakingRouterEvents} from './abi/StakingRouter';
+import {events as accountingOracleEvents} from './abi/AccountingOracle';
 
 import {handleSetApp} from './handlers/LidoDAO';
 
@@ -61,6 +62,7 @@ import {
     handleStartVote
 } from "./handlers/Voting";
 import {handleWithdrawalCredentialsSetStakingRouter} from "./handlers/StakingRouter";
+import {handleProcessingStarted} from "./handlers/AccountingOracle";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -393,6 +395,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { withdrawalCredentials, setBy } = stakingRouterEvents.WithdrawalCredentialsSet.decode(e);
                 await handleWithdrawalCredentialsSetStakingRouter(withdrawalCredentials, setBy.toLowerCase(), e, entityCache);
                 console.log(`StakingRouter.handleWithdrawalCredentialsSet - End`);
+            }
+
+            // AccountingOracle.handleProcessingStarted
+            else if (e.address.toLowerCase() === LIDO_ACCOUNTING_ORACLE_ADDRESS && e.topics[0] === accountingOracleEvents.ProcessingStarted.topic) {
+                console.log(`AccountingOracle.handleProcessingStarted - Start`);
+                const { refSlot, hash } = accountingOracleEvents.ProcessingStarted.decode(e);
+                await handleProcessingStarted(refSlot, hash, e, entityCache);
+                console.log(`AccountingOracle.handleProcessingStarted - End`);
             }
 
         }
