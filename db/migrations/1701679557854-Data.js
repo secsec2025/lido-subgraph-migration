@@ -1,5 +1,5 @@
-module.exports = class Data1701573962104 {
-    name = 'Data1701573962104'
+module.exports = class Data1701679557854 {
+    name = 'Data1701679557854'
 
     async up(db) {
         await db.query(`CREATE TABLE "lido_config" ("id" character varying NOT NULL, "insurance_fund" text, "oracle" text, "treasury" text, "is_stopped" boolean NOT NULL, "is_staking_paused" boolean NOT NULL, "max_stake_limit" numeric NOT NULL, "stake_limit_increase_per_block" numeric NOT NULL, "el_rewards_vault" text, "el_rewards_withdrawal_limit_points" numeric NOT NULL, "withdrawal_credentials" text NOT NULL, "wc_set_by" text, "lido_locator" text, CONSTRAINT "PK_616d6a5f5d35ea7b294d1d21f5a" PRIMARY KEY ("id"))`)
@@ -25,13 +25,13 @@ module.exports = class Data1701573962104 {
         await db.query(`CREATE TABLE "oracle_expected_epoch" ("id" character varying NOT NULL, "epoch_id" numeric NOT NULL, CONSTRAINT "PK_abaf6f8f95f6b6c4e31894444a9" PRIMARY KEY ("id"))`)
         await db.query(`CREATE TABLE "beacon_report" ("id" character varying NOT NULL, "epoch_id" numeric NOT NULL, "beacon_balance" numeric NOT NULL, "beacon_validators" numeric NOT NULL, "caller" text NOT NULL, CONSTRAINT "PK_3df95161b52ec69e5694e1157ed" PRIMARY KEY ("id"))`)
         await db.query(`CREATE TABLE "node_operator" ("id" character varying NOT NULL, "name" text NOT NULL, "reward_address" text NOT NULL, "staking_limit" numeric NOT NULL, "active" boolean NOT NULL, "total_stopped_validators" numeric, "total_keys_trimmed" numeric NOT NULL, "nonce" numeric NOT NULL, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_5b204b4f315c0053547bf32607e" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE TABLE "node_operator_signing_key" ("id" character varying NOT NULL, "operator_id" character varying NOT NULL, "pubkey" text NOT NULL, "removed" boolean NOT NULL, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_0b34025d712f0e565a0d654d011" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE INDEX "IDX_5e3dc3e3faaa633f331e4570b7" ON "node_operator_signing_key" ("operator_id") `)
+        await db.query(`CREATE TABLE "node_operator_signing_key" ("id" character varying NOT NULL, "operator_id" numeric NOT NULL, "pubkey" text NOT NULL, "removed" boolean NOT NULL, "opidfk" character varying, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_0b34025d712f0e565a0d654d011" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE INDEX "IDX_2dc7071603aac382bf52abb370" ON "node_operator_signing_key" ("opidfk") `)
         await db.query(`CREATE TABLE "node_operator_keys_op_index" ("id" character varying NOT NULL, "index" numeric NOT NULL, CONSTRAINT "PK_e6cc205c960850f1de21ddb5daf" PRIMARY KEY ("id"))`)
         await db.query(`CREATE TABLE "voting_config" ("id" character varying NOT NULL, "support_required_pct" numeric NOT NULL, "min_accept_quorum_pct" numeric NOT NULL, "vote_time" numeric NOT NULL, "objection_phase_time" numeric NOT NULL, CONSTRAINT "PK_c1fafd603ee53c0c83a9b5972e0" PRIMARY KEY ("id"))`)
-        await db.query(`CREATE TABLE "vote" ("id" character varying NOT NULL, "voter" text NOT NULL, "supports" boolean NOT NULL, "stake" numeric NOT NULL, "voting_id" character varying, CONSTRAINT "PK_2d5932d46afe39c8176f9d4be72" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "vote" ("id" character varying NOT NULL, "voting_id" character varying, "voter" text NOT NULL, "supports" boolean NOT NULL, "stake" numeric NOT NULL, CONSTRAINT "PK_2d5932d46afe39c8176f9d4be72" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_9c9329de9d83f5bd4b31d04b7b" ON "vote" ("voting_id") `)
-        await db.query(`CREATE TABLE "voting_objection" ("id" character varying NOT NULL, "voter" text NOT NULL, "stake" numeric NOT NULL, "voting_id" character varying, CONSTRAINT "PK_40bde3e12e72377b1e025ea1500" PRIMARY KEY ("id"))`)
+        await db.query(`CREATE TABLE "voting_objection" ("id" character varying NOT NULL, "voting_id" character varying, "voter" text NOT NULL, "stake" numeric NOT NULL, CONSTRAINT "PK_40bde3e12e72377b1e025ea1500" PRIMARY KEY ("id"))`)
         await db.query(`CREATE INDEX "IDX_549d7aff86c62fabb6dc5ed458" ON "voting_objection" ("voting_id") `)
         await db.query(`CREATE TABLE "voting" ("id" character varying NOT NULL, "index" integer NOT NULL, "creator" text NOT NULL, "metadata" text NOT NULL, "executed" boolean NOT NULL, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_2dff1e5c53fa2cc610bea30476c" PRIMARY KEY ("id"))`)
         await db.query(`CREATE TABLE "objection" ("id" character varying NOT NULL, "motion_id" character varying NOT NULL, "objector" text NOT NULL, "weight" numeric NOT NULL, "block" numeric NOT NULL, "block_time" numeric NOT NULL, "transaction_hash" text NOT NULL, "log_index" numeric NOT NULL, CONSTRAINT "PK_f66a92a8254c445494f6cc3be60" PRIMARY KEY ("id"))`)
@@ -48,7 +48,7 @@ module.exports = class Data1701573962104 {
         await db.query(`ALTER TABLE "node_operators_shares" ADD CONSTRAINT "FK_d7de92f3dc4d98a1cd3fd1092e8" FOREIGN KEY ("total_reward_id") REFERENCES "total_reward"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "node_operator_fees" ADD CONSTRAINT "FK_c8c3716226072d7bae0ffaae0d8" FOREIGN KEY ("total_reward_id") REFERENCES "total_reward"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "oracle_report" ADD CONSTRAINT "FK_aa5e522ee26acd5c55ca9675787" FOREIGN KEY ("total_reward_id") REFERENCES "total_reward"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
-        await db.query(`ALTER TABLE "node_operator_signing_key" ADD CONSTRAINT "FK_5e3dc3e3faaa633f331e4570b71" FOREIGN KEY ("operator_id") REFERENCES "node_operator"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
+        await db.query(`ALTER TABLE "node_operator_signing_key" ADD CONSTRAINT "FK_2dc7071603aac382bf52abb370b" FOREIGN KEY ("opidfk") REFERENCES "node_operator"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "vote" ADD CONSTRAINT "FK_9c9329de9d83f5bd4b31d04b7bf" FOREIGN KEY ("voting_id") REFERENCES "voting"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "voting_objection" ADD CONSTRAINT "FK_549d7aff86c62fabb6dc5ed458b" FOREIGN KEY ("voting_id") REFERENCES "voting"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
         await db.query(`ALTER TABLE "objection" ADD CONSTRAINT "FK_c913d483a2294e198c2f5ddf62b" FOREIGN KEY ("motion_id") REFERENCES "motion"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`)
@@ -79,7 +79,7 @@ module.exports = class Data1701573962104 {
         await db.query(`DROP TABLE "beacon_report"`)
         await db.query(`DROP TABLE "node_operator"`)
         await db.query(`DROP TABLE "node_operator_signing_key"`)
-        await db.query(`DROP INDEX "public"."IDX_5e3dc3e3faaa633f331e4570b7"`)
+        await db.query(`DROP INDEX "public"."IDX_2dc7071603aac382bf52abb370"`)
         await db.query(`DROP TABLE "node_operator_keys_op_index"`)
         await db.query(`DROP TABLE "voting_config"`)
         await db.query(`DROP TABLE "vote"`)
@@ -101,7 +101,7 @@ module.exports = class Data1701573962104 {
         await db.query(`ALTER TABLE "node_operators_shares" DROP CONSTRAINT "FK_d7de92f3dc4d98a1cd3fd1092e8"`)
         await db.query(`ALTER TABLE "node_operator_fees" DROP CONSTRAINT "FK_c8c3716226072d7bae0ffaae0d8"`)
         await db.query(`ALTER TABLE "oracle_report" DROP CONSTRAINT "FK_aa5e522ee26acd5c55ca9675787"`)
-        await db.query(`ALTER TABLE "node_operator_signing_key" DROP CONSTRAINT "FK_5e3dc3e3faaa633f331e4570b71"`)
+        await db.query(`ALTER TABLE "node_operator_signing_key" DROP CONSTRAINT "FK_2dc7071603aac382bf52abb370b"`)
         await db.query(`ALTER TABLE "vote" DROP CONSTRAINT "FK_9c9329de9d83f5bd4b31d04b7bf"`)
         await db.query(`ALTER TABLE "voting_objection" DROP CONSTRAINT "FK_549d7aff86c62fabb6dc5ed458b"`)
         await db.query(`ALTER TABLE "objection" DROP CONSTRAINT "FK_c913d483a2294e198c2f5ddf62b"`)

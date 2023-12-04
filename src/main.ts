@@ -42,7 +42,11 @@ import {
     handleMemberRemoved,
     handlePostTotalShares, handleQuorumChanged
 } from "./handlers/LegacyOracle";
-import {handleNodeOperatorAdded} from "./handlers/NodeOperatorsRegistry";
+import {
+    handleNodeOperatorActiveSet,
+    handleNodeOperatorAdded,
+    handleNodeOperatorNameSet, handleNodeOperatorRewardAddressSet, handleSigningKeyAdded
+} from "./handlers/NodeOperatorsRegistry";
 import {
     handleCastObjection,
     handleCastVote, handleChangeMinQuorum, handleChangeObjectionPhaseTime,
@@ -266,6 +270,38 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorAdded.topic) {
                 const { id, name, rewardAddress, stakingLimit } = nodeOperatorEvents.NodeOperatorAdded.decode(e);
                 await handleNodeOperatorAdded(id, name, rewardAddress.toLowerCase(), stakingLimit, e, entityCache);
+            }
+
+            // NodeOperatorRegistry.handleNodeOperatorActiveSet
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorActiveSet.topic) {
+                console.log(`NodeOperatorRegistry.handleNodeOperatorActiveSet - Start`);
+                const { id, active } = nodeOperatorEvents.NodeOperatorActiveSet.decode(e);
+                await handleNodeOperatorActiveSet(id, active, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleNodeOperatorActiveSet - End`);
+            }
+
+            // NodeOperatorRegistry.handleNodeOperatorNameSet
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorNameSet.topic) {
+                console.log(`NodeOperatorRegistry.handleNodeOperatorNameSet - Start`);
+                const { id, name } = nodeOperatorEvents.NodeOperatorNameSet.decode(e);
+                await handleNodeOperatorNameSet(id, name, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleNodeOperatorNameSet - End`);
+            }
+
+            // NodeOperatorRegistry.handleNodeOperatorRewardAddressSet
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorRewardAddressSet.topic) {
+                console.log(`NodeOperatorRegistry.handleNodeOperatorRewardAddressSet - Start`);
+                const { id, rewardAddress } = nodeOperatorEvents.NodeOperatorRewardAddressSet.decode(e);
+                await handleNodeOperatorRewardAddressSet(id, rewardAddress.toLowerCase(), e, entityCache);
+                console.log(`NodeOperatorRegistry.handleNodeOperatorRewardAddressSet - End`);
+            }
+
+            // NodeOperatorRegistry.handleSigningKeyAdded
+            else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.SigningKeyAdded.topic) {
+                console.log(`NodeOperatorRegistry.handleSigningKeyAdded - Start`);
+                const { operatorId, pubkey } = nodeOperatorEvents.SigningKeyAdded.decode(e);
+                await handleSigningKeyAdded(operatorId, pubkey, e, entityCache);
+                console.log(`NodeOperatorRegistry.handleSigningKeyAdded - End`);
             }
 
             // Voting.handleStartVote

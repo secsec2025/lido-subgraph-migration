@@ -1,12 +1,29 @@
 import {
-    AppVersion, BeaconReport, CurrentFees, Holder, LidoApproval,
+    AppVersion,
+    BeaconReport,
+    CurrentFees,
+    Holder,
+    LidoApproval,
     LidoConfig,
     LidoSubmission,
-    LidoTransfer, NodeOperator,
-    NodeOperatorFees, NodeOperatorsShares, OracleCompleted, OracleConfig, OracleExpectedEpoch, OracleMember,
-    Shares, SharesBurn, Stats,
+    LidoTransfer,
+    NodeOperator,
+    NodeOperatorFees,
+    NodeOperatorSigningKey,
+    NodeOperatorsShares,
+    OracleCompleted,
+    OracleConfig,
+    OracleExpectedEpoch,
+    OracleMember,
+    Shares,
+    SharesBurn,
+    Stats,
     TotalReward,
-    Totals, Vote, Voting, VotingConfig, VotingObjection
+    Totals,
+    Vote,
+    Voting,
+    VotingConfig,
+    VotingObjection
 } from "./model";
 import {DataHandlerContext} from "@subsquid/evm-processor";
 import {Store} from "@subsquid/typeorm-store";
@@ -37,6 +54,7 @@ export class EntityCache {
     public votes!: Map<string, Vote>;
     public votingObjections!: Map<string, VotingObjection>;
     public votingConfig!: Map<string, VotingConfig>;
+    public nodeOperatorSigningKeys!: Map<string, NodeOperatorSigningKey>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -70,6 +88,7 @@ export class EntityCache {
         this.votes = new Map<string, Vote>();
         this.votingObjections = new Map<string, VotingObjection>();
         this.votingConfig = new Map<string, VotingConfig>();
+        this.nodeOperatorSigningKeys = new Map<string, NodeOperatorSigningKey>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -424,6 +443,20 @@ export class EntityCache {
         this.votingConfig.set(ls.id, ls);
     }
 
+    getNodeOperatorSigningKey = async (id: string): Promise<NodeOperatorSigningKey | undefined> => {
+        // Check if entity exists in cache
+        if (this.nodeOperatorSigningKeys.has(id)) return this.nodeOperatorSigningKeys.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(NodeOperatorSigningKey, id);
+        if (a) this.nodeOperatorSigningKeys.set(id, a);
+        return a;
+    }
+
+    saveNodeOperatorSigningKey = (ls: NodeOperatorSigningKey) => {
+        this.nodeOperatorSigningKeys.set(ls.id, ls);
+    }
+
 
 
 
@@ -453,6 +486,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.votes.values()]);
         await this.ctx.store.upsert([...this.votingObjections.values()]);
         await this.ctx.store.upsert([...this.votingConfig.values()]);
+        await this.ctx.store.upsert([...this.nodeOperatorSigningKeys.values()]);
 
         if (flushCache) {
             this.initializeMaps();
