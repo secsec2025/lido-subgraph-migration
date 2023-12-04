@@ -1,5 +1,5 @@
 import {EntityCache} from "../entity-cache";
-import {WithdrawalQueueConfig} from "../model";
+import {WithdrawalClaimed, WithdrawalQueueConfig} from "../model";
 
 export const handleBunkerModeDisabled = async (logEvent: any, entityCache: EntityCache) => {
     const entity = await _loadWQConfig(entityCache);
@@ -8,11 +8,46 @@ export const handleBunkerModeDisabled = async (logEvent: any, entityCache: Entit
     entityCache.saveWithdrawalQueueConfig(entity);
 }
 
-export const handleBunkerModeEnabled = async (_sinceTimestamp:bigint, logEvent: any, entityCache: EntityCache) => {
+export const handleBunkerModeEnabled = async (_sinceTimestamp: bigint, logEvent: any, entityCache: EntityCache) => {
     const entity = await _loadWQConfig(entityCache);
     entity.isBunkerMode = true;
     entity.bunkerModeSince = _sinceTimestamp;
     entityCache.saveWithdrawalQueueConfig(entity);
+}
+
+export const handleContractVersionSetWithdrawalQueue = async (version: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadWQConfig(entityCache);
+    entity.contractVersion = version;
+    entityCache.saveWithdrawalQueueConfig(entity);
+}
+
+export const handleResumedWithdrawalQueue = async (logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadWQConfig(entityCache);
+    entity.isPaused = false;
+    entity.pauseDuration = 0n;
+    entityCache.saveWithdrawalQueueConfig(entity);
+}
+
+export const handlePausedWithdrawalQueue = async (duration: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadWQConfig(entityCache);
+    entity.isPaused = true;
+    entity.pauseDuration = duration;
+    entityCache.saveWithdrawalQueueConfig(entity);
+}
+
+export const handleWithdrawalClaimed = async (requestId: bigint, owner: string, receiver: string, amountOfETH: bigint, logEvent: any, entityCache: EntityCache) => {
+    let entity = new WithdrawalClaimed({
+        id: `${logEvent.transactionHash}${logEvent.logIndex}`,
+        requestId: requestId,
+        owner: owner,
+        receiver: receiver,
+        amountOfETH: amountOfETH,
+        block: BigInt(logEvent.block.height),
+        blockTime: BigInt(logEvent.block.timestamp),
+        transactionHash: logEvent.transactionHash,
+        logIndex: BigInt(logEvent.logIndex)
+    });
+    entityCache.saveWithdrawalClaimed(entity);
 }
 
 

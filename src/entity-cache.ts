@@ -23,7 +23,7 @@ import {
     Vote,
     Voting,
     VotingConfig,
-    VotingObjection, WithdrawalQueueConfig
+    VotingObjection, WithdrawalClaimed, WithdrawalQueueConfig
 } from "./model";
 import {DataHandlerContext} from "@subsquid/evm-processor";
 import {Store} from "@subsquid/typeorm-store";
@@ -58,6 +58,7 @@ export class EntityCache {
     public nodeOperatorSigningKeys!: Map<string, NodeOperatorSigningKey>;
     public nodeOperatorKeysOpIndex!: Map<string, NodeOperatorKeysOpIndex>;
     public withdrawalQueueConfig!: Map<string, WithdrawalQueueConfig>;
+    public withdrawalClaims!: Map<string, WithdrawalClaimed>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -95,6 +96,7 @@ export class EntityCache {
         this.nodeOperatorSigningKeys = new Map<string, NodeOperatorSigningKey>();
         this.nodeOperatorKeysOpIndex = new Map<string, NodeOperatorKeysOpIndex>();
         this.withdrawalQueueConfig = new Map<string, WithdrawalQueueConfig>();
+        this.withdrawalClaims = new Map<string, WithdrawalClaimed>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -505,6 +507,20 @@ export class EntityCache {
         this.withdrawalQueueConfig.set(ls.id, ls);
     }
 
+    getWithdrawalClaimed = async (id: string): Promise<WithdrawalClaimed | undefined> => {
+        // Check if entity exists in cache
+        if (this.withdrawalClaims.has(id)) return this.withdrawalClaims.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(WithdrawalClaimed, id);
+        if (a) this.withdrawalClaims.set(id, a);
+        return a;
+    }
+
+    saveWithdrawalClaimed = (ls: WithdrawalClaimed) => {
+        this.withdrawalClaims.set(ls.id, ls);
+    }
+
 
 
 
@@ -538,6 +554,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.nodeOperatorSigningKeys.values()]);
         await this.ctx.store.upsert([...this.nodeOperatorKeysOpIndex.values()]);
         await this.ctx.store.upsert([...this.withdrawalQueueConfig.values()]);
+        await this.ctx.store.upsert([...this.withdrawalClaims.values()]);
 
         if (flushCache) {
             this.initializeMaps();

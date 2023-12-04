@@ -64,7 +64,14 @@ import {
 } from "./handlers/Voting";
 import {handleWithdrawalCredentialsSetStakingRouter} from "./handlers/StakingRouter";
 import {handleExtraDataSubmitted, handleProcessingStarted} from "./handlers/AccountingOracle";
-import {handleBunkerModeDisabled, handleBunkerModeEnabled} from "./handlers/WithdrawalQueue";
+import {
+    handleBunkerModeDisabled,
+    handleBunkerModeEnabled,
+    handleContractVersionSetWithdrawalQueue,
+    handlePausedWithdrawalQueue,
+    handleResumedWithdrawalQueue,
+    handleWithdrawalClaimed
+} from "./handlers/WithdrawalQueue";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -428,6 +435,37 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { _sinceTimestamp } = withdrawalQueueEvents.BunkerModeEnabled.decode(e);
                 await handleBunkerModeEnabled(_sinceTimestamp, e, entityCache);
                 console.log(`WithdrawalQueue.handleBunkerModeEnabled - End`);
+            }
+
+            // WithdrawalQueue.handleContractVersionSet
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.ContractVersionSet.topic) {
+                console.log(`WithdrawalQueue.handleContractVersionSet - Start`);
+                const { version } = withdrawalQueueEvents.ContractVersionSet.decode(e);
+                await handleContractVersionSetWithdrawalQueue(version, e, entityCache);
+                console.log(`WithdrawalQueue.handleContractVersionSet - End`);
+            }
+
+            // WithdrawalQueue.handlePaused
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.Paused.topic) {
+                console.log(`WithdrawalQueue.handlePaused - Start`);
+                const { duration } = withdrawalQueueEvents.Paused.decode(e);
+                await handlePausedWithdrawalQueue(duration, e, entityCache);
+                console.log(`WithdrawalQueue.handlePaused - End`);
+            }
+
+            // WithdrawalQueue.handleResumed
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.Resumed.topic) {
+                console.log(`WithdrawalQueue.handleResumed - Start`);
+                await handleResumedWithdrawalQueue(e, entityCache);
+                console.log(`WithdrawalQueue.handleResumed - End`);
+            }
+
+            // WithdrawalQueue.handleWithdrawalClaimed
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.WithdrawalClaimed.topic) {
+                console.log(`WithdrawalQueue.handleWithdrawalClaimed - Start`);
+                const { requestId, owner, receiver, amountOfETH  } = withdrawalQueueEvents.WithdrawalClaimed.decode(e);
+                await handleWithdrawalClaimed(requestId, owner.toLowerCase(), receiver.toLowerCase(), amountOfETH, e, entityCache);
+                console.log(`WithdrawalQueue.handleWithdrawalClaimed - End`);
             }
 
         }
