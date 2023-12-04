@@ -4,7 +4,7 @@ import {
     LEGACY_ORACLE_ADDRESS, LIDO_ACCOUNTING_ORACLE_ADDRESS,
     LIDO_ADDRESS,
     LIDO_DAO_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
-    LIDO_VOTING_ADDRESS,
+    LIDO_VOTING_ADDRESS, LIDO_WITHDRAWAL_QUEUE_ADDRESS,
     NODE_OPERATORS_REGISTRY_ADDRESS
 } from "./constants";
 
@@ -14,6 +14,7 @@ import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
 import {events as votingEvents} from './abi/Voting';
 import {events as stakingRouterEvents} from './abi/StakingRouter';
 import {events as accountingOracleEvents} from './abi/AccountingOracle';
+import {events as withdrawalQueueEvents} from './abi/WithdrawalQueue';
 
 import {handleSetApp} from './handlers/LidoDAO';
 
@@ -63,6 +64,7 @@ import {
 } from "./handlers/Voting";
 import {handleWithdrawalCredentialsSetStakingRouter} from "./handlers/StakingRouter";
 import {handleExtraDataSubmitted, handleProcessingStarted} from "./handlers/AccountingOracle";
+import {handleBunkerModeDisabled, handleBunkerModeEnabled} from "./handlers/WithdrawalQueue";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -411,6 +413,21 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { refSlot, itemsProcessed, itemsCount } = accountingOracleEvents.ExtraDataSubmitted.decode(e);
                 await handleExtraDataSubmitted(refSlot, itemsProcessed, itemsCount, ctx, e, entityCache);
                 console.log(`AccountingOracle.handleExtraDataSubmitted - End`);
+            }
+
+            // WithdrawalQueue.handleBunkerModeDisabled
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.BunkerModeDisabled.topic) {
+                console.log(`WithdrawalQueue.handleBunkerModeDisabled - Start`);
+                await handleBunkerModeDisabled(e, entityCache);
+                console.log(`WithdrawalQueue.handleBunkerModeDisabled - End`);
+            }
+
+            // WithdrawalQueue.handleBunkerModeEnabled
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.BunkerModeEnabled.topic) {
+                console.log(`WithdrawalQueue.handleBunkerModeEnabled - Start`);
+                const { _sinceTimestamp } = withdrawalQueueEvents.BunkerModeEnabled.decode(e);
+                await handleBunkerModeEnabled(_sinceTimestamp, e, entityCache);
+                console.log(`WithdrawalQueue.handleBunkerModeEnabled - End`);
             }
 
         }
