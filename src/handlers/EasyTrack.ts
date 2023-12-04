@@ -94,6 +94,38 @@ export const handleMotionObjected = async (_motionId: bigint, _objector: string,
     entityCache.saveObjection(objectionEntity);
 }
 
+export const handleMotionRejected = async (_motionId: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await entityCache.getMotion(_motionId.toString());
+    assert(entity, `Undefined Motion at ${logEvent.transactionHash}`);
+    entity.status = 'REJECTED';
+    entity.rejectedAt = BigInt(logEvent.block.timestamp);
+    entityCache.saveMotion(entity);
+}
+
+export const handleMotionsCountLimitChanged = async (_newMotionsCountLimit: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadETConfig(entityCache);
+    entity.motionsCountLimit = _newMotionsCountLimit;
+    entityCache.saveEasyTrackConfig(entity);
+}
+
+export const handleObjectionsThresholdChanged = async (_newThreshold: bigint, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadETConfig(entityCache);
+    entity.objectionsThreshold = _newThreshold;
+    entityCache.saveEasyTrackConfig(entity);
+}
+
+export const handlePausedEasyTrack = async (account: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadETConfig(entityCache);
+    entity.isPaused = true;
+    entityCache.saveEasyTrackConfig(entity);
+}
+
+export const handleUnpausedEasyTrack = async (account: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = await _loadETConfig(entityCache);
+    entity.isPaused = false;
+    entityCache.saveEasyTrackConfig(entity);
+}
+
 
 
 async function _loadETConfig(entityCache: EntityCache): Promise<EasyTrackConfig> {
