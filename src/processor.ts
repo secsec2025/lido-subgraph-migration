@@ -5,7 +5,7 @@ import {
 import {
     LEGACY_ORACLE_ADDRESS,
     LIDO_ADDRESS,
-    LIDO_DAO_ADDRESS,
+    LIDO_DAO_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
     LIDO_VOTING_ADDRESS,
     NODE_OPERATORS_REGISTRY_ADDRESS
 } from "./constants";
@@ -15,6 +15,7 @@ import {events as lidoEvents} from './abi/Lido';
 import {events as legacyOracleEvents} from './abi/LegacyOracle';
 import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
 import {events as votingEvents} from './abi/Voting';
+import {events as stakingRouterEvents} from './abi/StakingRouter';
 
 export const processor = new EvmBatchProcessor()
     .setDataSource({
@@ -67,6 +68,10 @@ export const processor = new EvmBatchProcessor()
             votingEvents.ExecuteVote.topic, votingEvents.ChangeSupportRequired.topic, votingEvents.ChangeMinQuorum.topic,
             votingEvents.ChangeVoteTime.topic, votingEvents.ChangeObjectionPhaseTime.topic],
         range: {from: 11473216}
+    }).addLog({
+        address: [LIDO_STAKING_ROUTER_ADDRESS],
+        topic0: [stakingRouterEvents.WithdrawalCredentialsSet.topic],
+        range: {from: 17175000}
     }).setFields({
         log: {
             address: true,

@@ -3,7 +3,7 @@ import {processor} from './processor'
 import {
     LEGACY_ORACLE_ADDRESS,
     LIDO_ADDRESS,
-    LIDO_DAO_ADDRESS,
+    LIDO_DAO_ADDRESS, LIDO_STAKING_ROUTER_ADDRESS,
     LIDO_VOTING_ADDRESS,
     NODE_OPERATORS_REGISTRY_ADDRESS
 } from "./constants";
@@ -12,6 +12,7 @@ import {events as lidoDAOEvents} from './abi/LidoDAO';
 import {events as lidoEvents} from './abi/Lido';
 import {events as nodeOperatorEvents} from './abi/NodeOperatorsRegistry';
 import {events as votingEvents} from './abi/Voting';
+import {events as stakingRouterEvents} from './abi/StakingRouter';
 
 import {handleSetApp} from './handlers/LidoDAO';
 
@@ -59,6 +60,7 @@ import {
     handleExecuteVote,
     handleStartVote
 } from "./handlers/Voting";
+import {handleWithdrawalCredentialsSetStakingRouter} from "./handlers/StakingRouter";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -383,6 +385,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
             else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ChangeObjectionPhaseTime.topic) {
                 const { objectionPhaseTime } = votingEvents.ChangeObjectionPhaseTime.decode(e);
                 await handleChangeObjectionPhaseTime(objectionPhaseTime, e, entityCache);
+            }
+
+            // StakingRouter.handleWithdrawalCredentialsSet
+            else if (e.address.toLowerCase() === LIDO_STAKING_ROUTER_ADDRESS && e.topics[0] === stakingRouterEvents.WithdrawalCredentialsSet.topic) {
+                console.log(`StakingRouter.handleWithdrawalCredentialsSet - Start`);
+                const { withdrawalCredentials, setBy } = stakingRouterEvents.WithdrawalCredentialsSet.decode(e);
+                await handleWithdrawalCredentialsSetStakingRouter(withdrawalCredentials, setBy.toLowerCase(), e, entityCache);
+                console.log(`StakingRouter.handleWithdrawalCredentialsSet - End`);
             }
 
         }
