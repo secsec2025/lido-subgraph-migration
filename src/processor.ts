@@ -75,7 +75,7 @@ export const processor = new EvmBatchProcessor()
         range: {from: 17175000}
     }).addLog({
         address: [LIDO_ACCOUNTING_ORACLE_ADDRESS],
-        topic0: [accountingOracleEvents.ProcessingStarted.topic],
+        topic0: [accountingOracleEvents.ProcessingStarted.topic, accountingOracleEvents.ExtraDataSubmitted.topic],
         range: {from: 17175000},
         transaction: true
     }).setFields({

@@ -62,7 +62,7 @@ import {
     handleStartVote
 } from "./handlers/Voting";
 import {handleWithdrawalCredentialsSetStakingRouter} from "./handlers/StakingRouter";
-import {handleProcessingStarted} from "./handlers/AccountingOracle";
+import {handleExtraDataSubmitted, handleProcessingStarted} from "./handlers/AccountingOracle";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -403,6 +403,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { refSlot, hash } = accountingOracleEvents.ProcessingStarted.decode(e);
                 await handleProcessingStarted(refSlot, hash, e, entityCache);
                 console.log(`AccountingOracle.handleProcessingStarted - End`);
+            }
+
+            // AccountingOracle.handleExtraDataSubmitted
+            else if (e.address.toLowerCase() === LIDO_ACCOUNTING_ORACLE_ADDRESS && e.topics[0] === accountingOracleEvents.ExtraDataSubmitted.topic) {
+                console.log(`AccountingOracle.handleExtraDataSubmitted - Start`);
+                const { refSlot, itemsProcessed, itemsCount } = accountingOracleEvents.ExtraDataSubmitted.decode(e);
+                await handleExtraDataSubmitted(refSlot, itemsProcessed, itemsCount, ctx, e, entityCache);
+                console.log(`AccountingOracle.handleExtraDataSubmitted - End`);
             }
 
         }
