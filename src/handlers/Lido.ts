@@ -50,7 +50,7 @@ export const handleSubmitted = async (sender: string, amount: bigint, referral: 
     if (await isLidoTransferShares(logEvent.block.height, entityCache)) {
         // limit parsing by 2 next events
         // such approach cover both cases when Transfer was emitted before and wise versa
-        const parsedEvents = parseEventLogs(logEvent, LIDO_ADDRESS, logEvent.logIndex, logEvent.logIndex + 2n);
+        const parsedEvents = parseEventLogs(logEvent, LIDO_ADDRESS, BigInt(logEvent.logIndex), BigInt(logEvent.logIndex) + 2n);
         // extracting only 'Transfer' and 'TransferShares' pairs
         const transferEventPairs = extractPairedEvent(parsedEvents, 'Transfer', 'TransferShares');
 

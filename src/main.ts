@@ -129,17 +129,13 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // Lido.handleStakingLimitSet
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.StakingLimitSet.topic) {
-                console.log(`Lido.handleStakingLimitSet - Start`);
                 const { maxStakeLimit, stakeLimitIncreasePerBlock } = lidoEvents.StakingLimitSet.decode(e);
                 await handleStakingLimitSet(maxStakeLimit, stakeLimitIncreasePerBlock, e, entityCache);
-                console.log(`Lido.handleStakingLimitSet - End`);
             }
 
             // Lido.handleStakingResumed
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.StakingResumed.topic) {
-                console.log(`Lido.handleStakingResumed - Start`);
                 await handleStakingResumed(e, entityCache);
-                console.log(`Lido.handleStakingResumed - End`);
             }
 
             // Lido.handleStakingPaused
@@ -183,18 +179,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // Lido.handleELRewardsWithdrawalLimitSet
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.ELRewardsWithdrawalLimitSet.topic) {
-                console.log(`Lido.handleELRewardsWithdrawalLimitSet - Start`);
                 const { limitPoints } = lidoEvents.ELRewardsWithdrawalLimitSet.decode(e);
                 await handleELRewardsWithdrawalLimitSet(limitPoints, e, entityCache);
-                console.log(`Lido.handleELRewardsWithdrawalLimitSet - End`);
             }
 
             // Lido.handleELRewardsVaultSet
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.ELRewardsVaultSet.topic) {
-                console.log(`Lido.handleELRewardsVaultSet - Start`);
                 const { executionLayerRewardsVault } = lidoEvents.ELRewardsVaultSet.decode(e);
                 await handleELRewardsVaultSet(executionLayerRewardsVault.toLowerCase(), e, entityCache);
-                console.log(`Lido.handleELRewardsVaultSet - End`);
             }
 
             // Lido.handleBeaconValidatorsUpdated
@@ -253,10 +245,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // LegacyOracle.handleBeaconReportReceiverSet
             else if (e.address.toLowerCase() === LEGACY_ORACLE_ADDRESS && e.topics[0] === legacyOracleEvents.BeaconReportReceiverSet.topic) {
-                console.log(`LegacyOracle.handleBeaconReportReceiverSet - Start`);
                 const { callback } = legacyOracleEvents.BeaconReportReceiverSet.decode(e);
                 await handleBeaconReportReceiverSet(callback.toLowerCase(), e, entityCache);
-                console.log(`LegacyOracle.handleBeaconReportReceiverSet - End`);
             }
 
             // LegacyOracle.handleAllowedBeaconBalanceRelativeDecreaseSet
@@ -303,18 +293,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // NodeOperatorRegistry.handleSigningKeyAdded
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.SigningKeyAdded.topic) {
-                console.log(`NodeOperatorRegistry.handleSigningKeyAdded - Start`);
                 const { operatorId, pubkey } = nodeOperatorEvents.SigningKeyAdded.decode(e);
                 await handleSigningKeyAdded(operatorId, pubkey, e, entityCache);
-                console.log(`NodeOperatorRegistry.handleSigningKeyAdded - End`);
             }
 
             // NodeOperatorRegistry.handleSigningKeyRemoved
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.SigningKeyRemoved.topic) {
-                console.log(`NodeOperatorRegistry.handleSigningKeyRemoved - Start`);
                 const { operatorId, pubkey } = nodeOperatorEvents.SigningKeyRemoved.decode(e);
                 await handleSigningKeyRemoved(operatorId, pubkey, e, entityCache);
-                console.log(`NodeOperatorRegistry.handleSigningKeyRemoved - End`);
             }
 
             // NodeOperatorRegistry.handleNodeOperatorTotalKeysTrimmed
@@ -327,18 +313,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // NodeOperatorRegistry.handleKeysOpIndexSet
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.KeysOpIndexSet.topic) {
-                console.log(`NodeOperatorRegistry.handleKeysOpIndexSet - Start`);
                 const { keysOpIndex } = nodeOperatorEvents.KeysOpIndexSet.decode(e);
                 await handleKeysOpIndexSet(keysOpIndex, e, entityCache);
-                console.log(`NodeOperatorRegistry.handleKeysOpIndexSet - End`);
             }
 
             // NodeOperatorRegistry.handleNodeOperatorStakingLimitSet
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorStakingLimitSet.topic) {
-                console.log(`NodeOperatorRegistry.handleNodeOperatorStakingLimitSet - Start`);
                 const { id, stakingLimit } = nodeOperatorEvents.NodeOperatorStakingLimitSet.decode(e);
                 await handleNodeOperatorStakingLimitSet(id, stakingLimit, e, entityCache);
-                console.log(`NodeOperatorRegistry.handleNodeOperatorStakingLimitSet - End`);
             }
 
             // NodeOperatorRegistry.handleNodeOperatorTotalStoppedValidatorsReported
@@ -351,34 +333,26 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // Voting.handleStartVote
             else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.StartVote.topic) {
-                console.log(`Voting.handleStartVote - Start`);
                 const { voteId, creator, metadata } = votingEvents.StartVote.decode(e);
                 await handleStartVote(voteId, creator.toLowerCase(), metadata, e, entityCache);
-                console.log(`Voting.handleStartVote - End`);
             }
 
             // Voting.handleCastVote
             else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.CastVote.topic) {
-                console.log(`Voting.handleCastVote - Start`);
                 const { voteId, voter, supports, stake } = votingEvents.CastVote.decode(e);
                 await handleCastVote(voteId, voter.toLowerCase(), supports, stake, e, entityCache);
-                console.log(`Voting.handleCastVote - End`);
             }
 
             // Voting.handleCastObjection
             else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.CastObjection.topic) {
-                console.log(`Voting.handleCastObjection - Start`);
                 const { voteId, voter, stake } = votingEvents.CastObjection.decode(e);
                 await handleCastObjection(voteId, voter.toLowerCase(), stake, e, entityCache);
-                console.log(`Voting.handleCastObjection - End`);
             }
 
             // Voting.handleExecuteVote
             else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ExecuteVote.topic) {
-                console.log(`Voting.handleExecuteVote - Start`);
                 const { voteId } = votingEvents.ExecuteVote.decode(e);
                 await handleExecuteVote(voteId, e, entityCache);
-                console.log(`Voting.handleExecuteVote - End`);
             }
 
             // Voting.handleChangeSupportRequired
@@ -407,10 +381,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // Voting.handleChangeObjectionPhaseTime
             else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ChangeObjectionPhaseTime.topic) {
-                console.log(`Voting.handleChangeObjectionPhaseTime - Start`);
                 const { objectionPhaseTime } = votingEvents.ChangeObjectionPhaseTime.decode(e);
                 await handleChangeObjectionPhaseTime(objectionPhaseTime, e, entityCache);
-                console.log(`Voting.handleChangeObjectionPhaseTime - End`);
             }
 
         }
