@@ -15,6 +15,9 @@ export class Vote {
     @ManyToOne_(() => Voting, {nullable: true})
     voting!: Voting
 
+    @Column_({nullable: true})
+    votingId!: string | undefined | null;
+
     @Column_("text", {nullable: false})
     voter!: string
 

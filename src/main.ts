@@ -43,7 +43,7 @@ import {
     handlePostTotalShares, handleQuorumChanged
 } from "./handlers/LegacyOracle";
 import {handleNodeOperatorAdded} from "./handlers/NodeOperatorsRegistry";
-import {handleStartVote} from "./handlers/Voting";
+import {handleCastObjection, handleCastVote, handleExecuteVote, handleStartVote} from "./handlers/Voting";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
     console.log(`Batch Size - ${ctx.blocks.length} blocks`);
@@ -268,6 +268,30 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { voteId, creator, metadata } = votingEvents.StartVote.decode(e);
                 await handleStartVote(voteId, creator.toLowerCase(), metadata, e, entityCache);
                 console.log(`Voting.handleStartVote - End`);
+            }
+
+            // Voting.handleCastVote
+            else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.CastVote.topic) {
+                console.log(`Voting.handleCastVote - Start`);
+                const { voteId, voter, supports, stake } = votingEvents.CastVote.decode(e);
+                await handleCastVote(voteId, voter.toLowerCase(), supports, stake, e, entityCache);
+                console.log(`Voting.handleCastVote - End`);
+            }
+
+            // Voting.handleCastObjection
+            else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.CastObjection.topic) {
+                console.log(`Voting.handleCastObjection - Start`);
+                const { voteId, voter, stake } = votingEvents.CastObjection.decode(e);
+                await handleCastObjection(voteId, voter.toLowerCase(), stake, e, entityCache);
+                console.log(`Voting.handleCastObjection - End`);
+            }
+
+            // Voting.handleExecuteVote
+            else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ExecuteVote.topic) {
+                console.log(`Voting.handleExecuteVote - Start`);
+                const { voteId } = votingEvents.ExecuteVote.decode(e);
+                await handleExecuteVote(voteId, e, entityCache);
+                console.log(`Voting.handleExecuteVote - End`);
             }
 
         }

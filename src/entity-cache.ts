@@ -6,7 +6,7 @@ import {
     NodeOperatorFees, NodeOperatorsShares, OracleCompleted, OracleConfig, OracleExpectedEpoch, OracleMember,
     Shares, SharesBurn, Stats,
     TotalReward,
-    Totals, Voting
+    Totals, Vote, Voting, VotingObjection
 } from "./model";
 import {DataHandlerContext} from "@subsquid/evm-processor";
 import {Store} from "@subsquid/typeorm-store";
@@ -34,6 +34,8 @@ export class EntityCache {
     public beaconReports!: Map<string, BeaconReport>;
     public oracleMembers!: Map<string, OracleMember>;
     public voting!: Map<string, Voting>;
+    public votes!: Map<string, Vote>;
+    public votingObjections!: Map<string, VotingObjection>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -64,6 +66,8 @@ export class EntityCache {
         this.beaconReports = new Map<string, BeaconReport>();
         this.oracleMembers = new Map<string, OracleMember>();
         this.voting = new Map<string, Voting>();
+        this.votes = new Map<string, Vote>();
+        this.votingObjections = new Map<string, VotingObjection>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -376,6 +380,34 @@ export class EntityCache {
         this.voting.set(ls.id, ls);
     }
 
+    getVote = async (id: string): Promise<Vote | undefined> => {
+        // Check if entity exists in cache
+        if (this.votes.has(id)) return this.votes.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(Vote, id);
+        if (a) this.votes.set(id, a);
+        return a;
+    }
+
+    saveVote = (ls: Vote) => {
+        this.votes.set(ls.id, ls);
+    }
+
+    getVotingObjection = async (id: string): Promise<VotingObjection | undefined> => {
+        // Check if entity exists in cache
+        if (this.votingObjections.has(id)) return this.votingObjections.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(VotingObjection, id);
+        if (a) this.votingObjections.set(id, a);
+        return a;
+    }
+
+    saveVotingObjection = (ls: VotingObjection) => {
+        this.votingObjections.set(ls.id, ls);
+    }
+
 
 
 
@@ -402,6 +434,8 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.beaconReports.values()]);
         await this.ctx.store.upsert([...this.oracleMembers.values()]);
         await this.ctx.store.upsert([...this.voting.values()]);
+        await this.ctx.store.upsert([...this.votes.values()]);
+        await this.ctx.store.upsert([...this.votingObjections.values()]);
 
         if (flushCache) {
             this.initializeMaps();
