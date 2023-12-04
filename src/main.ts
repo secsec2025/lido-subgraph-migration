@@ -70,7 +70,7 @@ import {
     handleContractVersionSetWithdrawalQueue,
     handlePausedWithdrawalQueue,
     handleResumedWithdrawalQueue,
-    handleWithdrawalClaimed
+    handleWithdrawalClaimed, handleWithdrawalRequested, handleWithdrawalsFinalized
 } from "./handlers/WithdrawalQueue";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
@@ -466,6 +466,30 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { requestId, owner, receiver, amountOfETH  } = withdrawalQueueEvents.WithdrawalClaimed.decode(e);
                 await handleWithdrawalClaimed(requestId, owner.toLowerCase(), receiver.toLowerCase(), amountOfETH, e, entityCache);
                 console.log(`WithdrawalQueue.handleWithdrawalClaimed - End`);
+            }
+
+            // WithdrawalQueue.handleWithdrawalRequested
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.WithdrawalRequested.topic) {
+                console.log(`WithdrawalQueue.handleWithdrawalRequested - Start`);
+                const { requestId, requestor, owner, amountOfStETH, amountOfShares  } = withdrawalQueueEvents.WithdrawalRequested.decode(e);
+                await handleWithdrawalRequested(requestId, requestor.toLowerCase(), owner.toLowerCase(), amountOfStETH, amountOfShares, e, entityCache);
+                console.log(`WithdrawalQueue.handleWithdrawalRequested - End`);
+            }
+
+            // WithdrawalQueue.handleWithdrawalsFinalized
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.WithdrawalsFinalized.topic) {
+                console.log(`WithdrawalQueue.handleWithdrawalsFinalized - Start`);
+                const { from, to, amountOfETHLocked, sharesToBurn, timestamp  } = withdrawalQueueEvents.WithdrawalsFinalized.decode(e);
+                await handleWithdrawalsFinalized(from, to, amountOfETHLocked, sharesToBurn, timestamp, e, entityCache);
+                console.log(`WithdrawalQueue.handleWithdrawalsFinalized - End`);
+            }
+
+            // WithdrawalQueue.handleWithdrawalBatchFinalized
+            else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.WithdrawalBatchFinalized.topic) {
+                console.log(`WithdrawalQueue.handleWithdrawalBatchFinalized - Start`);
+                const { from, to, amountOfETHLocked, sharesToBurn, timestamp  } = withdrawalQueueEvents.WithdrawalBatchFinalized.decode(e);
+                await handleWithdrawalsFinalized(from, to, amountOfETHLocked, sharesToBurn, timestamp, e, entityCache);
+                console.log(`WithdrawalQueue.handleWithdrawalBatchFinalized - End`);
             }
 
         }

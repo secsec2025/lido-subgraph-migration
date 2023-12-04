@@ -23,7 +23,7 @@ import {
     Vote,
     Voting,
     VotingConfig,
-    VotingObjection, WithdrawalClaimed, WithdrawalQueueConfig
+    VotingObjection, WithdrawalClaimed, WithdrawalQueueConfig, WithdrawalRequested, WithdrawalsFinalized
 } from "./model";
 import {DataHandlerContext} from "@subsquid/evm-processor";
 import {Store} from "@subsquid/typeorm-store";
@@ -59,6 +59,8 @@ export class EntityCache {
     public nodeOperatorKeysOpIndex!: Map<string, NodeOperatorKeysOpIndex>;
     public withdrawalQueueConfig!: Map<string, WithdrawalQueueConfig>;
     public withdrawalClaims!: Map<string, WithdrawalClaimed>;
+    public withdrawalRequests!: Map<string, WithdrawalRequested>;
+    public withdrawalFinalized!: Map<string, WithdrawalsFinalized>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -97,6 +99,8 @@ export class EntityCache {
         this.nodeOperatorKeysOpIndex = new Map<string, NodeOperatorKeysOpIndex>();
         this.withdrawalQueueConfig = new Map<string, WithdrawalQueueConfig>();
         this.withdrawalClaims = new Map<string, WithdrawalClaimed>();
+        this.withdrawalRequests = new Map<string, WithdrawalRequested>();
+        this.withdrawalFinalized = new Map<string, WithdrawalsFinalized>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -521,6 +525,34 @@ export class EntityCache {
         this.withdrawalClaims.set(ls.id, ls);
     }
 
+    getWithdrawalRequested = async (id: string): Promise<WithdrawalRequested | undefined> => {
+        // Check if entity exists in cache
+        if (this.withdrawalRequests.has(id)) return this.withdrawalRequests.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(WithdrawalRequested, id);
+        if (a) this.withdrawalRequests.set(id, a);
+        return a;
+    }
+
+    saveWithdrawalRequested = (ls: WithdrawalRequested) => {
+        this.withdrawalRequests.set(ls.id, ls);
+    }
+
+    getWithdrawalFinalized = async (id: string): Promise<WithdrawalsFinalized | undefined> => {
+        // Check if entity exists in cache
+        if (this.withdrawalFinalized.has(id)) return this.withdrawalFinalized.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(WithdrawalsFinalized, id);
+        if (a) this.withdrawalFinalized.set(id, a);
+        return a;
+    }
+
+    saveWithdrawalFinalized = (ls: WithdrawalsFinalized) => {
+        this.withdrawalFinalized.set(ls.id, ls);
+    }
+
 
 
 
@@ -555,6 +587,8 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.nodeOperatorKeysOpIndex.values()]);
         await this.ctx.store.upsert([...this.withdrawalQueueConfig.values()]);
         await this.ctx.store.upsert([...this.withdrawalClaims.values()]);
+        await this.ctx.store.upsert([...this.withdrawalRequests.values()]);
+        await this.ctx.store.upsert([...this.withdrawalFinalized.values()]);
 
         if (flushCache) {
             this.initializeMaps();

@@ -83,7 +83,9 @@ export const processor = new EvmBatchProcessor()
         address: [LIDO_WITHDRAWAL_QUEUE_ADDRESS],
         topic0: [withdrawalQueueEvents.BunkerModeDisabled.topic, withdrawalQueueEvents.BunkerModeEnabled.topic,
             withdrawalQueueEvents.ContractVersionSet.topic, withdrawalQueueEvents.Paused.topic,
-            withdrawalQueueEvents.Resumed.topic, withdrawalQueueEvents.WithdrawalClaimed.topic],
+            withdrawalQueueEvents.Resumed.topic, withdrawalQueueEvents.WithdrawalClaimed.topic,
+            withdrawalQueueEvents.WithdrawalRequested.topic, withdrawalQueueEvents.WithdrawalsFinalized.topic,
+            withdrawalQueueEvents.WithdrawalBatchFinalized.topic],
         range: {from: 17175000},
     }).setFields({
         log: {

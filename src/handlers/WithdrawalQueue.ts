@@ -1,5 +1,5 @@
 import {EntityCache} from "../entity-cache";
-import {WithdrawalClaimed, WithdrawalQueueConfig} from "../model";
+import {WithdrawalClaimed, WithdrawalQueueConfig, WithdrawalRequested, WithdrawalsFinalized} from "../model";
 
 export const handleBunkerModeDisabled = async (logEvent: any, entityCache: EntityCache) => {
     const entity = await _loadWQConfig(entityCache);
@@ -48,6 +48,39 @@ export const handleWithdrawalClaimed = async (requestId: bigint, owner: string, 
         logIndex: BigInt(logEvent.logIndex)
     });
     entityCache.saveWithdrawalClaimed(entity);
+}
+
+export const handleWithdrawalRequested = async (requestId: bigint, requestor: string, owner: string, amountOfStETH: bigint, amountOfShares: bigint, logEvent: any, entityCache: EntityCache) => {
+    let entity = new WithdrawalRequested({
+        id: `${logEvent.transactionHash}${logEvent.logIndex}`,
+        requestId: requestId,
+        requestor: requestor,
+        owner: owner,
+        amountOfStETH: amountOfStETH,
+        amountOfShares: amountOfShares,
+        block: BigInt(logEvent.block.height),
+        blockTime: BigInt(logEvent.block.timestamp),
+        transactionHash: logEvent.transactionHash,
+        logIndex: BigInt(logEvent.logIndex)
+    });
+    entityCache.saveWithdrawalRequested(entity);
+}
+
+
+export const handleWithdrawalsFinalized = async (from: bigint, to: bigint, amountOfETHLocked: bigint, sharesToBurn: bigint, timestamp: bigint, logEvent: any, entityCache: EntityCache) => {
+    let entity = new WithdrawalsFinalized({
+        id: `${logEvent.transactionHash}${logEvent.logIndex}`,
+        from: from,
+        to: to,
+        amountOfETHLocked: amountOfETHLocked,
+        sharesToBurn: sharesToBurn,
+        timestamp: timestamp,
+        block: BigInt(logEvent.block.height),
+        blockTime: BigInt(logEvent.block.timestamp),
+        transactionHash: logEvent.transactionHash,
+        logIndex: BigInt(logEvent.logIndex)
+    });
+    entityCache.saveWithdrawalFinalized(entity);
 }
 
 
