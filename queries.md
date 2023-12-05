@@ -457,3 +457,360 @@ query MyQ {
 }
 ```
 
+## 5 Node Operator Key Indexes (sorted by index DESC)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    nodeOperatorKeysOpIndexes (first: 5, orderBy: index,
+        orderDirection: desc) {
+        id
+        index
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    nodeOperatorKeysOpIndices(limit: 5, orderBy: index_DESC) {
+        id
+        index
+    }
+}
+```
+
+## Get the latest Node Operator Signing Key (Where removed is false and logIndex is 441)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    nodeOperatorSigningKeys (first: 1, orderBy: block,
+        orderDirection: desc, where: {
+            removed: false,
+            logIndex: 441
+        }) {
+        id
+        operator {
+            id
+            name
+            rewardAddress
+        }
+        pubkey
+        removed
+        block
+        transactionHash
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    nodeOperatorSigningKeys(limit: 1, orderBy: block_DESC,
+        where: {
+            removed_eq: false,
+            logIndex_eq: 441
+        }) {
+        id
+        operator {
+            id
+            name
+            rewardAddress
+        }
+        pubkey
+        removed
+        block
+        transactionHash
+        logIndex
+    }
+}
+```
+
+## Get latest 10 Objections
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    objections(first: 10, orderBy: block,
+        orderDirection: desc){
+        id
+        objector
+        weight
+        motion {
+            id
+            status
+        }
+        block
+        blockTime
+        transactionHash
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    objections(limit: 10, orderBy: block_DESC) {
+        id
+        objector
+        weight
+        motion {
+            id
+            status
+        }
+        block
+        blockTime
+        transactionHash
+        logIndex
+    }
+}
+```
+
+## Get latest 5 completed Oracles
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    oracleCompleteds (first: 5, orderBy: block,
+        orderDirection: desc) {
+        id
+        epochId
+        beaconBalance
+        beaconValidators
+        block
+        transactionHash
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    oracleCompleteds(limit: 5, orderBy: block_DESC) {
+        id
+        epochId
+        beaconBalance
+        beaconValidators
+        block
+        transactionHash
+        logIndex
+    }
+}
+```
+
+## Get Oracle Config
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    oracleConfigs {
+        id
+        quorum
+        contractVersion
+        allowedBeaconBalanceAnnualRelativeIncrease
+        allowedBeaconBalanceRelativeDecrease
+        epochsPerFrame
+        slotsPerEpoch
+        secondsPerSlot
+        genesisTime
+        beaconReportReceiver
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    oracleConfigs {
+        id
+        quorum
+        contractVersion
+        allowedBeaconBalanceAnnualRelativeIncrease
+        allowedBeaconBalanceRelativeDecrease
+        epochsPerFrame
+        slotsPerEpoch
+        secondsPerSlot
+        genesisTime
+        beaconReportReceiver
+    }
+}
+```
+
+## Get 5 Expected Epoch IDs (sorted by epochId DESC)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    oracleExpectedEpoches(first: 5,
+        orderBy: epochId, orderDirection: desc) {
+        id
+        epochId
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    oracleExpectedEpoches(limit: 5, orderBy: epochId_DESC) {
+        id
+        epochId
+    }
+}
+```
+
+## Get all Oracle Members (sorted by block)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    oracleMembers(first: 10, orderBy: block,
+        orderDirection: desc) {
+        id
+        member
+        removed
+        block
+        blockTime
+        transactionHash
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    oracleMembers(limit: 10, orderBy: block_DESC) {
+        id
+        member
+        removed
+        block
+        blockTime
+        transactionHash
+        logIndex
+    }
+}
+```
+
+## Get 5 Oracle Reports where itemsProcessed is greater than 0 (sorted by id DESC)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    oracleReports(first: 5, orderBy: id,
+        orderDirection: desc, where: {
+            itemsProcessed_gt: 0
+        }) {
+        id
+        hash
+        itemsProcessed
+        itemsCount
+        totalReward {
+            id
+            shares2mint
+        }
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    oracleReports(limit: 5, orderBy: id_DESC,
+        where: {
+            itemsProcessed_gt: 0
+        }) {
+        id
+        hash
+        itemsProcessed
+        itemsCount
+        totalReward {
+            id
+            shares2mint
+        }
+    }
+}
+```
+
+## Get 5 Oracle Reports where itemsProcessed is greater than 0 (sorted by id DESC)
+💡 The subgraph has not subscribed to Role related events, but Role is present in the GraphQL schema. So, in the squid, I used Role events as well.
+
+### Subgraph Query
+```graphql
+{
+    roles {
+        id
+        role
+        address
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    roles {
+        id
+        role
+        address
+    }
+}
+```
+
+## Get 5 Shares Burns where shareAmount is between 1000000000000000000000 and 10000000000000000000000 (sorted by shareAmount ASC)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    sharesBurns(first: 5, where: {
+        sharesAmount_gt: "1000000000000000000000",
+        sharesAmount_lt: "10000000000000000000000"
+    }, orderBy: sharesAmount, orderDirection: asc) {
+        id
+        account
+        postRebaseTokenAmount
+        preRebaseTokenAmount
+        sharesAmount
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    sharesBurns(limit: 5, orderBy: sharesAmount_ASC,
+        where: {
+            sharesAmount_gt: "1000000000000000000000",
+            sharesAmount_lt: "10000000000000000000000"
+        }) {
+        id
+        account
+        postRebaseTokenAmount
+        preRebaseTokenAmount
+        sharesAmount
+    }
+}
+```
