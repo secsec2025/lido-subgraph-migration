@@ -131,10 +131,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // Lido.handleLidoLocatorSet
             else if (e.address.toLowerCase() === LIDO_ADDRESS && e.topics[0] === lidoEvents.LidoLocatorSet.topic) {
-                console.log(`Lido.handleLidoLocatorSet - Start`);
                 const { lidoLocator } = lidoEvents.LidoLocatorSet.decode(e);
                 await handleLidoLocatorSet(lidoLocator.toLowerCase(), e, entityCache);
-                console.log(`Lido.handleLidoLocatorSet - End`);
             }
 
             // Lido.handleStopped
@@ -306,18 +304,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // NodeOperatorRegistry.handleNodeOperatorNameSet
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorNameSet.topic) {
-                console.log(`NodeOperatorRegistry.handleNodeOperatorNameSet - Start`);
                 const { id, name } = nodeOperatorEvents.NodeOperatorNameSet.decode(e);
                 await handleNodeOperatorNameSet(id, name, e, entityCache);
-                console.log(`NodeOperatorRegistry.handleNodeOperatorNameSet - End`);
             }
 
             // NodeOperatorRegistry.handleNodeOperatorRewardAddressSet
             else if (e.address.toLowerCase() === NODE_OPERATORS_REGISTRY_ADDRESS && e.topics[0] === nodeOperatorEvents.NodeOperatorRewardAddressSet.topic) {
-                console.log(`NodeOperatorRegistry.handleNodeOperatorRewardAddressSet - Start`);
                 const { id, rewardAddress } = nodeOperatorEvents.NodeOperatorRewardAddressSet.decode(e);
                 await handleNodeOperatorRewardAddressSet(id, rewardAddress.toLowerCase(), e, entityCache);
-                console.log(`NodeOperatorRegistry.handleNodeOperatorRewardAddressSet - End`);
             }
 
             // NodeOperatorRegistry.handleSigningKeyAdded
@@ -510,10 +504,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // StakingRouter.handleWithdrawalCredentialsSet
             else if (e.address.toLowerCase() === LIDO_STAKING_ROUTER_ADDRESS && e.topics[0] === stakingRouterEvents.WithdrawalCredentialsSet.topic) {
-                console.log(`StakingRouter.handleWithdrawalCredentialsSet - Start`);
                 const { withdrawalCredentials, setBy } = stakingRouterEvents.WithdrawalCredentialsSet.decode(e);
                 await handleWithdrawalCredentialsSetStakingRouter(withdrawalCredentials, setBy.toLowerCase(), e, entityCache);
-                console.log(`StakingRouter.handleWithdrawalCredentialsSet - End`);
             }
 
             // AccountingOracle.handleProcessingStarted
@@ -545,25 +537,19 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // WithdrawalQueue.handleContractVersionSet
             else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.ContractVersionSet.topic) {
-                console.log(`WithdrawalQueue.handleContractVersionSet - Start`);
                 const { version } = withdrawalQueueEvents.ContractVersionSet.decode(e);
                 await handleContractVersionSetWithdrawalQueue(version, e, entityCache);
-                console.log(`WithdrawalQueue.handleContractVersionSet - End`);
             }
 
             // WithdrawalQueue.handlePaused
             else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.Paused.topic) {
-                console.log(`WithdrawalQueue.handlePaused - Start`);
                 const { duration } = withdrawalQueueEvents.Paused.decode(e);
                 await handlePausedWithdrawalQueue(duration, e, entityCache);
-                console.log(`WithdrawalQueue.handlePaused - End`);
             }
 
             // WithdrawalQueue.handleResumed
             else if (e.address.toLowerCase() === LIDO_WITHDRAWAL_QUEUE_ADDRESS && e.topics[0] === withdrawalQueueEvents.Resumed.topic) {
-                console.log(`WithdrawalQueue.handleResumed - Start`);
                 await handleResumedWithdrawalQueue(e, entityCache);
-                console.log(`WithdrawalQueue.handleResumed - End`);
             }
 
             // WithdrawalQueue.handleWithdrawalClaimed
@@ -594,10 +580,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // HashConsensus.handleFrameConfigSet
             else if (e.address.toLowerCase() === LIDO_HASH_CONSENSUS_ADDRESS && e.topics[0] === hashConsensusEvents.FrameConfigSet.topic) {
-                console.log(`HashConsensus.handleFrameConfigSet - Start`);
                 const { newInitialEpoch, newEpochsPerFrame  } = hashConsensusEvents.FrameConfigSet.decode(e);
                 await handleFrameConfigSet(newInitialEpoch, newEpochsPerFrame, ctx, e, entityCache);
-                console.log(`HashConsensus.handleFrameConfigSet - End`);
             }
 
         }

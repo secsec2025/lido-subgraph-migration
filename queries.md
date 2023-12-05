@@ -127,3 +127,36 @@ query MyQ {
     }
 }
 ```
+
+## Latest 5 Beacon Reports
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    beaconReports(first: 5,
+        orderBy: epochId, orderDirection: desc) {
+        id
+        epochId
+        beaconBalance
+        beaconValidators
+        caller
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    beaconReports(limit: 5, orderBy: epochId_DESC) {
+        id
+        epochId
+        beaconBalance
+        beaconValidators
+        caller
+    }
+}
+```
+
+
