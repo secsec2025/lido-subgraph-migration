@@ -814,3 +814,318 @@ query MyQ {
     }
 }
 ```
+
+## Get latest 5 Total Rewards
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    totalRewards(first: 5, orderBy: block,
+        orderDirection: desc) {
+        id
+        totalRewards
+        totalRewardsWithFees
+        mevFee
+        feeBasis
+        apr
+        shares2mint
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    totalRewards(limit: 5, orderBy: block_DESC) {
+        id
+        totalRewards
+        totalRewardsWithFees
+        mevFee
+        feeBasis
+        apr
+        shares2mint
+    }
+}
+```
+
+## Get latest 5 executed Votings
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    votings(first: 5, orderBy: block,
+        orderDirection: desc, where: {
+            executed: true
+        }) {
+        id
+        executed
+        metadata
+        block
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    votings(limit: 5, orderBy: block_DESC,
+        where: {
+            executed_eq: true
+        }) {
+        id
+        executed
+        metadata
+        block
+    }
+}
+```
+
+## Get Votes for VotingID = 100 (sorted by stake DESC)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    votes (where: {
+        voting_: {
+            id: "100"
+        }
+    }, orderBy: stake, orderDirection: desc) {
+        id
+        voting {
+            id
+        }
+        voter
+        supports
+        stake
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    votes (where: {
+        voting: {
+            id_eq: "100"
+        }
+    }, orderBy: stake_DESC) {
+        id
+        voting {
+            id
+        }
+        voter
+        supports
+        stake
+    }
+}
+```
+
+## Get Voting Config
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    votingConfigs {
+        id
+        supportRequiredPct
+        minAcceptQuorumPct
+        voteTime
+        objectionPhaseTime
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    votingConfigs {
+        id
+        supportRequiredPct
+        minAcceptQuorumPct
+        voteTime
+        objectionPhaseTime
+    }
+}
+```
+
+## Get Voting Objections (sorted by stake DESC)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    votingObjections(first: 20, orderBy:stake,
+        orderDirection: desc) {
+        id
+        voting {
+            id
+        }
+        voter
+        stake
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    votingObjections(limit: 20, orderBy: stake_DESC) {
+        id
+        voting {
+            id
+        }
+        voter
+        stake
+    }
+}
+```
+
+## Get latest 5 Claimed Withdrawals
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    withdrawalClaimeds(first: 5, orderBy: block,
+        orderDirection: desc) {
+        id
+        requestId
+        owner
+        receiver
+        amountOfETH
+        block
+        transactionHash
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    withdrawalClaimeds(limit: 5, orderBy: block_DESC) {
+        id
+        requestId
+        owner
+        receiver
+        amountOfETH
+        block
+        transactionHash
+        logIndex
+    }
+}
+```
+
+## Get Withdrawal Queue Config
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    withdrawalQueueConfigs {
+        id
+        isBunkerMode
+        bunkerModeSince
+        contractVersion
+        isPaused
+        pauseDuration
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    withdrawalQueueConfigs {
+        id
+        isBunkerMode
+        bunkerModeSince
+        contractVersion
+        isPaused
+        pauseDuration
+    }
+}
+```
+
+## Get latest Withdrawal Requests
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    withdrawalRequesteds(first: 5, orderBy: block,
+        orderDirection: desc) {
+        id
+        requestId
+        requestor
+        owner
+        amountOfStETH
+        amountOfShares
+        block
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    withdrawalRequesteds(limit: 5, orderBy: block_DESC) {
+        id
+        requestId
+        requestor
+        owner
+        amountOfStETH
+        amountOfShares
+        block
+        logIndex
+    }
+}
+```
+
+## Get latest Finalized Withdrawals
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    withdrawalsFinalizeds(first: 5, orderBy: block,
+        orderDirection: desc) {
+        id
+        from
+        to
+        sharesToBurn
+        amountOfETHLocked
+        block
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    withdrawalsFinalizeds(limit: 5, orderBy: block_DESC) {
+        id
+        from
+        to
+        sharesToBurn
+        amountOfETHLocked
+        block
+        logIndex
+    }
+}
+```
