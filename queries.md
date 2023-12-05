@@ -159,4 +159,301 @@ query MyQ {
 }
 ```
 
+## Get Easy Track Config
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    easyTrackConfigs {
+        id
+        evmScriptExecutor
+        motionDuration
+        motionsCountLimit
+        objectionsThreshold
+        isPaused
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    easyTrackConfigs {
+        id
+        evmScriptExecutor
+        motionDuration
+        motionsCountLimit
+        objectionsThreshold
+        isPaused
+    }
+}
+```
+
+## Get 5 EVM Script Factories (sorted ASC by address)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    evmscriptFactories(first: 5,
+        orderBy: address, orderDirection: asc) {
+        id
+        address
+        permissions
+        isActive
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    evmScriptFactories(limit: 5, orderBy: address_ASC) {
+        id
+        address
+        permissions
+        isActive
+    }
+}
+```
+
+## Get 5 Lido Holders (sorted DESC by address, hasBalance is true)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    holders(first: 5, orderBy: address,
+        orderDirection: desc, where: {
+            hasBalance: true
+        }) {
+        id
+        address
+        hasBalance
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    holders(limit: 5, orderBy: address_DESC,
+        where: {
+            hasBalance_eq: true
+        }) {
+        id
+        address
+        hasBalance
+    }
+}
+```
+
+## Get 5 Lido Approvals (sorted DESC by value, value between 1,000,000 and 10,000,000)
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    lidoApprovals(first: 5,
+        orderBy: value, orderDirection: desc,
+        where: {
+            value_gt: 1000000,
+            value_lt: 10000000
+        }) {
+        id
+        owner
+        spender
+        value
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    lidoApprovals(limit: 5, orderBy: value_DESC,
+        where: {
+            value_gt: 1000000,
+            value_lt: 10000000
+        }) {
+        id
+        owner
+        spender
+        value
+    }
+}
+```
+
+## Get Lido Config
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    lidoConfigs {
+        id
+        insuranceFund
+        oracle
+        treasury
+        isStopped
+        isStakingPaused
+        maxStakeLimit
+        stakeLimitIncreasePerBlock
+        elRewardsVault
+        elRewardsWithdrawalLimitPoints
+        withdrawalCredentials
+        wcSetBy
+        lidoLocator
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    lidoConfigs {
+        id
+        insuranceFund
+        oracle
+        treasury
+        isStopped
+        isStakingPaused
+        maxStakeLimit
+        stakeLimitIncreasePerBlock
+        elRewardsVault
+        elRewardsWithdrawalLimitPoints
+        withdrawalCredentials
+        wcSetBy
+        lidoLocator
+    }
+}
+```
+
+## Latest 5 Enacted Motions
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    motions(first: 5,
+        orderBy: block, orderDirection: desc,
+        where: {
+            status: "ENACTED"
+        }) {
+        id
+        creator
+        evmScriptFactory
+        duration
+        startDate
+        snapshotBlock
+        objectionsAmount
+        objectionsAmountPct
+        objectionsThreshold
+        evmScriptHash
+        evmScriptCalldata
+        status
+        enacted_at
+        canceled_at
+        rejected_at
+        objections {
+            id
+            objector
+            weight
+            block
+        }
+        block
+        blockTime
+        transactionHash
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    motions (limit: 5, orderBy: block_DESC,
+        where: {
+            status_eq: "ENACTED"
+        }) {
+        id
+        creator
+        evmScriptFactory
+        duration
+        startDate
+        snapshotBlock
+        objectionsAmount
+        objectionsAmountPct
+        objectionsThreshold
+        evmScriptHash
+        evmScriptCalldata
+        status
+        enactedAt
+        canceledAt
+        rejectedAt
+        objections {
+            id
+            objector
+            weight
+            block
+        }
+        block
+        blockTime
+        transactionHash
+        logIndex
+    }
+}
+```
+
+## Latest 10 Node Operators
+✅ Squid data matches with subgraph.
+
+### Subgraph Query
+```graphql
+{
+    nodeOperators(first: 10,
+        orderBy: block, orderDirection: desc) {
+        id
+        name
+        rewardAddress
+        stakingLimit
+        active
+        totalStoppedValidators
+        totalKeysTrimmed
+        nonce
+        block
+        blockTime
+        transactionHash
+        logIndex
+    }
+}
+```
+
+### Squid Query
+
+```graphql
+query MyQ {
+    nodeOperators(limit: 10, orderBy: block_DESC) {
+        id
+        name
+        rewardAddress
+        stakingLimit
+        active
+        totalStoppedValidators
+        totalKeysTrimmed
+        nonce
+        block
+        blockTime
+        transactionHash
+        logIndex
+    }
+}
+```
 
