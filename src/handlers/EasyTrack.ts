@@ -1,5 +1,5 @@
 import {EntityCache} from "../entity-cache";
-import {EasyTrackConfig, EVMScriptFactory, Motion, Objection} from "../model";
+import {EasyTrackConfig, EVMScriptFactory, Motion, Objection, Role} from "../model";
 import {ZERO_ADDRESS} from "../constants";
 import assert from "assert";
 
@@ -124,6 +124,24 @@ export const handleUnpausedEasyTrack = async (account: string, logEvent: any, en
     const entity = await _loadETConfig(entityCache);
     entity.isPaused = false;
     entityCache.saveEasyTrackConfig(entity);
+}
+
+export const handleRoleGrantedEasyTrack = async (role: string, account: string, sender: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = new Role({
+        id: `${account}${role}`,
+        role: role,
+        address: account,
+        creator: sender,
+        isActive: true
+    });
+    entityCache.saveRole(entity);
+}
+
+export const handleRoleRevokedEasyTrack = async (role: string, account: string, sender: string, logEvent: any, entityCache: EntityCache) => {
+    const entity = await entityCache.getRole(`${account}${role}`);
+    assert(entity, `Undefined Role (${role}) at ${logEvent.transactionHash}`);
+    entity.isActive = false;
+    entityCache.saveRole(entity);
 }
 
 

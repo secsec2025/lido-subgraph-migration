@@ -80,7 +80,7 @@ export const processor = new EvmBatchProcessor()
             easyTrackEvents.MotionEnacted.topic, easyTrackEvents.MotionObjected.topic,
             easyTrackEvents.MotionRejected.topic, easyTrackEvents.MotionsCountLimitChanged.topic,
             easyTrackEvents.ObjectionsThresholdChanged.topic, easyTrackEvents.Paused.topic,
-            easyTrackEvents.Unpaused.topic],
+            easyTrackEvents.Unpaused.topic, easyTrackEvents.RoleGranted.topic, easyTrackEvents.RoleRevoked.topic],
         range: {from: 13676720}
     }).addLog({
         address: [LIDO_STAKING_ROUTER_ADDRESS],

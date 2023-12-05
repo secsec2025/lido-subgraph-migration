@@ -86,7 +86,11 @@ import {
     handleMotionObjected,
     handleMotionRejected,
     handleMotionsCountLimitChanged,
-    handleObjectionsThresholdChanged, handlePausedEasyTrack, handleUnpausedEasyTrack
+    handleObjectionsThresholdChanged,
+    handlePausedEasyTrack,
+    handleRoleGrantedEasyTrack,
+    handleRoleRevokedEasyTrack,
+    handleUnpausedEasyTrack
 } from "./handlers/EasyTrack";
 
 processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
@@ -512,6 +516,22 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
                 const { account } = easyTrackEvents.Unpaused.decode(e);
                 await handleUnpausedEasyTrack(account.toLowerCase(), e, entityCache);
                 console.log(`EasyTrack.handleUnpaused - End`);
+            }
+
+            // EasyTrack.handleRoleGranted
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.RoleGranted.topic) {
+                console.log(`EasyTrack.handleRoleGranted - Start`);
+                const { role, account, sender } = easyTrackEvents.RoleGranted.decode(e);
+                await handleRoleGrantedEasyTrack(role, account.toLowerCase(), sender.toLowerCase(), e, entityCache);
+                console.log(`EasyTrack.handleRoleGranted - End`);
+            }
+
+            // EasyTrack.handleRoleRevoked
+            else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.RoleRevoked.topic) {
+                console.log(`EasyTrack.handleRoleGranted - Start`);
+                const { role, account, sender } = easyTrackEvents.RoleRevoked.decode(e);
+                await handleRoleRevokedEasyTrack(role, account.toLowerCase(), sender.toLowerCase(), e, entityCache);
+                console.log(`EasyTrack.handleRoleRevoked - End`);
             }
 
             // StakingRouter.handleWithdrawalCredentialsSet

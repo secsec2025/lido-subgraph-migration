@@ -14,7 +14,7 @@ import {
     OracleCompleted,
     OracleConfig,
     OracleExpectedEpoch,
-    OracleMember, OracleReport,
+    OracleMember, OracleReport, Role,
     Shares,
     SharesBurn,
     Stats,
@@ -65,6 +65,7 @@ export class EntityCache {
     public evmScriptFactory!: Map<string, EVMScriptFactory>;
     public motions!: Map<string, Motion>;
     public objections!: Map<string, Objection>;
+    public roles!: Map<string, Role>;
 
     public ctx: DataHandlerContext<Store, {}>;
 
@@ -109,6 +110,7 @@ export class EntityCache {
         this.evmScriptFactory = new Map<string, EVMScriptFactory>();
         this.motions = new Map<string, Motion>();
         this.objections = new Map<string, Objection>();
+        this.roles = new Map<string, Role>();
     }
 
     getAppVersion = async (appId: string): Promise<AppVersion | undefined> => {
@@ -617,6 +619,20 @@ export class EntityCache {
         this.objections.set(ls.id, ls);
     }
 
+    getRole = async (id: string): Promise<Role | undefined> => {
+        // Check if entity exists in cache
+        if (this.roles.has(id)) return this.roles.get(id);
+
+        // Check if exists in DB and save it to cache
+        const a = await this.ctx.store.get(Role, id);
+        if (a) this.roles.set(id, a);
+        return a;
+    }
+
+    saveRole = (ls: Role) => {
+        this.roles.set(ls.id, ls);
+    }
+
 
 
 
@@ -657,6 +673,7 @@ export class EntityCache {
         await this.ctx.store.upsert([...this.evmScriptFactory.values()]);
         await this.ctx.store.upsert([...this.motions.values()]);
         await this.ctx.store.upsert([...this.objections.values()]);
+        await this.ctx.store.upsert([...this.roles.values()]);
 
         if (flushCache) {
             this.initializeMaps();
