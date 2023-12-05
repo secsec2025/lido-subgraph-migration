@@ -41,7 +41,7 @@ sqd serve
 <ul>
 <li>Time to fully sync - Less than 1.5 hours</li>
 <li>You can download the fully synced Postgres database (up to 18720600 block)
-<a href="">here</a>.</li>
+<a href="https://drive.google.com/file/d/10CcVRjdDiYGSAXLlax1t9iUQIksCmS0g/view?usp=sharing">here</a>.</li>
 </ul>
 
 
