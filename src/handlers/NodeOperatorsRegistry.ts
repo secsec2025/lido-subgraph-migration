@@ -44,8 +44,7 @@ export const handleSigningKeyAdded = async (operatorId: bigint, pubkey: string, 
 
     const entity = new NodeOperatorSigningKey({
         id: pubkey,
-        operatorId: operatorId,
-        opidfk: operatorId.toString(),
+        operatorId: operatorId.toString(),
         pubkey: pubkey,
         removed: false,
         block: BigInt(logEvent.block.height),
@@ -64,9 +63,8 @@ export const handleSigningKeyRemoved = async (operatorId: bigint, pubkey: string
     if (!entity) {
         entity = new NodeOperatorSigningKey({
             id: pubkey,
-            operatorId: operatorId,
-            pubkey: pubkey,
-            opidfk: operatorId.toString()
+            operatorId: operatorId.toString(),
+            pubkey: pubkey
         });
     }
 

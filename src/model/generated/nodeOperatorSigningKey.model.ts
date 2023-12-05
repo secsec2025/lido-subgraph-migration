@@ -1,4 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_, JoinColumn as JoinColumn_} from "typeorm"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
 import * as marshal from "./marshal"
 import {NodeOperator} from "./nodeOperator.model"
 
@@ -11,9 +11,6 @@ export class NodeOperatorSigningKey {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    operatorId!: bigint
-
     @Column_("text", {nullable: false})
     pubkey!: string
 
@@ -22,11 +19,10 @@ export class NodeOperatorSigningKey {
 
     @Index_()
     @ManyToOne_(() => NodeOperator, {nullable: true})
-    @JoinColumn_({name: 'opidfk'})
     operator!: NodeOperator
 
     @Column_({nullable: true})
-    opidfk!: string | undefined | null;
+    operatorId!: string | undefined | null;
 
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     block!: bigint

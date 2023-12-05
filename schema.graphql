@@ -311,7 +311,6 @@ type BeaconReport @entity {
 type NodeOperatorSigningKey @entity {
   id: ID!
 
-  operatorId: BigInt!
   pubkey: String!
   removed: Boolean!
 
@@ -451,7 +450,6 @@ type EVMScriptFactory @entity {
 type Objection @entity {
   id: ID!
 
-  motionId: BigInt!
   objector: String!
   weight: BigInt!
 
