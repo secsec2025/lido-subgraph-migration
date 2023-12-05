@@ -233,7 +233,7 @@ export const handleCompleted = async (epochId: bigint, beaconBalance: bigint, be
 
         const nodeOperatorShare = new NodeOperatorsShares({
             id: `${logEvent.transactionHash}${addr}`,
-            totalReward: logEvent.transactionHash,
+            totalRewardId: logEvent.transactionHash,
             address: addr,
             shares: shares
         });
