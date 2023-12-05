@@ -402,10 +402,8 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // Voting.handleChangeVoteTime
             else if (e.address.toLowerCase() === LIDO_VOTING_ADDRESS && e.topics[0] === votingEvents.ChangeVoteTime.topic) {
-                console.log(`Voting.handleChangeVoteTime - Start`);
                 const { voteTime } = votingEvents.ChangeVoteTime.decode(e);
                 await handleChangeVoteTime(voteTime, e, entityCache);
-                console.log(`Voting.handleChangeVoteTime - End`);
             }
 
             // Voting.handleChangeObjectionPhaseTime
@@ -416,66 +414,50 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // EasyTrack.handleEVMScriptExecutorChanged
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.EVMScriptExecutorChanged.topic) {
-                console.log(`EasyTrack.handleEVMScriptExecutorChanged - Start`);
                 const { _evmScriptExecutor } = easyTrackEvents.EVMScriptExecutorChanged.decode(e);
                 await handleEVMScriptExecutorChanged(_evmScriptExecutor.toLowerCase(), e, entityCache);
-                console.log(`EasyTrack.handleEVMScriptExecutorChanged - End`);
             }
 
             // EasyTrack.handleEVMScriptFactoryAdded
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.EVMScriptFactoryAdded.topic) {
-                console.log(`EasyTrack.handleEVMScriptFactoryAdded - Start`);
                 const { _evmScriptFactory, _permissions } = easyTrackEvents.EVMScriptFactoryAdded.decode(e);
                 await handleEVMScriptFactoryAdded(_evmScriptFactory.toLowerCase(), _permissions, e, entityCache);
-                console.log(`EasyTrack.handleEVMScriptFactoryAdded - End`);
             }
 
             // EasyTrack.handleEVMScriptFactoryRemoved
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.EVMScriptFactoryRemoved.topic) {
-                console.log(`EasyTrack.handleEVMScriptFactoryRemoved - Start`);
                 const { _evmScriptFactory } = easyTrackEvents.EVMScriptFactoryRemoved.decode(e);
                 await handleEVMScriptFactoryRemoved(_evmScriptFactory.toLowerCase(), e, entityCache);
-                console.log(`EasyTrack.handleEVMScriptFactoryRemoved - End`);
             }
 
             // EasyTrack.handleMotionCreated
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionCreated.topic) {
-                console.log(`EasyTrack.handleMotionCreated - Start`);
                 const { _motionId, _creator, _evmScriptFactory, _evmScriptCallData, _evmScript } = easyTrackEvents.MotionCreated.decode(e);
                 await handleMotionCreated(_motionId, _creator.toLowerCase(), _evmScriptFactory.toLowerCase(), _evmScriptCallData, _evmScript, e, entityCache);
-                console.log(`EasyTrack.handleMotionCreated - End`);
             }
 
             // EasyTrack.handleMotionDurationChanged
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionDurationChanged.topic) {
-                console.log(`EasyTrack.handleMotionDurationChanged - Start`);
                 const { _motionDuration } = easyTrackEvents.MotionDurationChanged.decode(e);
                 await handleMotionDurationChanged(_motionDuration, e, entityCache);
-                console.log(`EasyTrack.handleMotionDurationChanged - End`);
             }
 
             // EasyTrack.handleMotionEnacted
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionEnacted.topic) {
-                console.log(`EasyTrack.handleMotionEnacted - Start`);
                 const { _motionId } = easyTrackEvents.MotionEnacted.decode(e);
                 await handleMotionEnacted(_motionId, e, entityCache);
-                console.log(`EasyTrack.handleMotionEnacted - End`);
             }
 
             // EasyTrack.handleMotionObjected
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionObjected.topic) {
-                console.log(`EasyTrack.handleMotionObjected - Start`);
                 const { _motionId, _objector, _weight, _newObjectionsAmount, _newObjectionsAmountPct } = easyTrackEvents.MotionObjected.decode(e);
                 await handleMotionObjected(_motionId, _objector.toLowerCase(), _weight, _newObjectionsAmount, _newObjectionsAmountPct, e, entityCache);
-                console.log(`EasyTrack.handleMotionObjected - End`);
             }
 
             // EasyTrack.handleMotionCanceled
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionCanceled.topic) {
-                console.log(`EasyTrack.handleMotionCanceled - Start`);
                 const { _motionId } = easyTrackEvents.MotionCanceled.decode(e);
                 await handleMotionCanceled(_motionId, e, entityCache);
-                console.log(`EasyTrack.handleMotionCanceled - End`);
             }
 
             // EasyTrack.handleMotionRejected
@@ -488,18 +470,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // EasyTrack.handleMotionsCountLimitChanged
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.MotionsCountLimitChanged.topic) {
-                console.log(`EasyTrack.handleMotionsCountLimitChanged - Start`);
                 const { _newMotionsCountLimit } = easyTrackEvents.MotionsCountLimitChanged.decode(e);
                 await handleMotionsCountLimitChanged(_newMotionsCountLimit, e, entityCache);
-                console.log(`EasyTrack.handleMotionsCountLimitChanged - End`);
             }
 
             // EasyTrack.handleObjectionsThresholdChanged
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.ObjectionsThresholdChanged.topic) {
-                console.log(`EasyTrack.handleObjectionsThresholdChanged - Start`);
                 const { _newThreshold } = easyTrackEvents.ObjectionsThresholdChanged.decode(e);
                 await handleObjectionsThresholdChanged(_newThreshold, e, entityCache);
-                console.log(`EasyTrack.handleObjectionsThresholdChanged - End`);
             }
 
             // EasyTrack.handlePaused
@@ -520,18 +498,14 @@ processor.run(new TypeormDatabase({supportHotBlocks: true}), async (ctx) => {
 
             // EasyTrack.handleRoleGranted
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.RoleGranted.topic) {
-                console.log(`EasyTrack.handleRoleGranted - Start`);
                 const { role, account, sender } = easyTrackEvents.RoleGranted.decode(e);
                 await handleRoleGrantedEasyTrack(role, account.toLowerCase(), sender.toLowerCase(), e, entityCache);
-                console.log(`EasyTrack.handleRoleGranted - End`);
             }
 
             // EasyTrack.handleRoleRevoked
             else if (e.address.toLowerCase() === LIDO_EASY_TRACK_ADDRESS && e.topics[0] === easyTrackEvents.RoleRevoked.topic) {
-                console.log(`EasyTrack.handleRoleGranted - Start`);
                 const { role, account, sender } = easyTrackEvents.RoleRevoked.decode(e);
                 await handleRoleRevokedEasyTrack(role, account.toLowerCase(), sender.toLowerCase(), e, entityCache);
-                console.log(`EasyTrack.handleRoleRevoked - End`);
             }
 
             // StakingRouter.handleWithdrawalCredentialsSet
