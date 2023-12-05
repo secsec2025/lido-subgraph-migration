@@ -612,6 +612,7 @@ query MyQ {
 
 ## Get Oracle Config
 ✅ Squid data matches with subgraph.
+`slotsPerEpoch` value given by the subgraph is wrong (it is a bug in their code). The squid gives the correct value.
 
 ### Subgraph Query
 ```graphql
@@ -752,7 +753,7 @@ query MyQ {
 }
 ```
 
-## Get 5 Oracle Reports where itemsProcessed is greater than 0 (sorted by id DESC)
+## Get all Roles
 💡 The subgraph has not subscribed to Role related events, but Role is present in the GraphQL schema. So, in the squid, I used Role events as well.
 
 ### Subgraph Query

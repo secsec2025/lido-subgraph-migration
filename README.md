@@ -5,6 +5,13 @@ A quest to migrate Lido subgraph to Subsquid
 
 This is the squid implementation of the Lido subgraph. https://thegraph.com/explorer/subgraphs/HXfMc1jPHfFQoccWd7VMv66km75FoxVHDMvsJj5vG5vf?view=Overview&chain=mainnet
 
+# What is Changed?
+
+<ul>
+<li>Batch Processing is used.</li>
+<li>An <code>EntityCache</code> is used to store the entities in memory to improve performance.</li>
+</ul>
+
 # How to start?
 <ul>
 <li>Please make sure to add the necessary DB config to <code>.env</code> file.</li>
@@ -32,7 +39,9 @@ sqd serve
 # Squid Stats
 
 <ul>
-
+<li>Time to fully sync - Less than 1.5 hours</li>
+<li>You can download the fully synced Postgres database (up to 18720600 block)
+<a href="">here</a>.</li>
 </ul>
 
 
